@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InkSite | Tarpaulin Calculator</title>
+  <style>
+    /* --- RESET & BASE --- */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      color: #333;
+      overflow-x: hidden; /* Prevents horizontal scroll when drawer is hidden */
+    }
+
+    /* --- RESPONSIVE HEADER --- */
+    header {
+      background: #000;
+      color: #fff;
+      padding: 10px 5%;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #222;
+      font-size: 0.85rem;
+      flex-wrap: wrap; 
+      gap: 10px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a { 
+      color: #fff; 
+      text-decoration: none; 
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: #ff007f; }
+
+    .contact-info {
+      display: flex;
+      gap: 15px;
+      font-weight: 600;
+      flex-wrap: wrap;
+    }
+
+    .header-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 15px;
+      gap: 20px;
+    }
+
+    /* --- LOGO STYLES --- */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: white;
+    }
+
+    .logo-img {
+      height: 45px;
+      width: auto;
+      display: block;
+      border-radius: 50%;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-left: 10px;
+    }
+
+    .search-container { flex-grow: 1; max-width: 500px; }
+
+    .search-container input {
+      width: 100%;
+      background: #111;
+      border: 1px solid #444;
+      border-radius: 50px;
+      padding: 10px 20px;
+      color: white;
+      outline: none;
+      box-sizing: border-box;
+      transition: border 0.3s;
+    }
+
+    .search-container input:focus { border-color: #e3e3e3; }
+
+    /* --- LAYOUT --- */
+    .content {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; 
+      padding: 40px 5%;
+      gap: 40px;
+    }
+
+    /* --- GALLERY --- */
+    .gallery-container { flex: 1; max-width: 700px; }
+    .gallery-title { font-size: 1.8rem; margin: 0 0 20px 0; color: #1a1a1a; }
+
+    .main-image-viewport {
+      width: 100%;
+      height: 400px;
+      background: #fff;
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-image-viewport img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: opacity 0.3s ease;
+    }
+
+    .image-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding-bottom: 10px;
+    }
+
+    .tab-item {
+      width: 80px;
+      height: 60px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      overflow: hidden;
+      opacity: 0.6;
+    }
+
+    .tab-item.active { border-color: #ff007f; opacity: 1; }
+    .tab-item img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* --- CALCULATOR --- */
+    .calculator {
+      width: 100%;
+      max-width: 380px; 
+      padding: 25px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .calc-header { margin: 0 0 15px 0; font-size: 1.4rem; }
+    
+    .visual-preview-container {
+      width: 100%;
+      height: 180px; 
+      background: #f0f0f0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px dashed #ccc;
+      position: relative;
+    }
+
+    #tarpaulin-box {
+      background: #ff007f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.7rem;
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 10px rgba(255, 0, 127, 0.3);
+      text-align: center;
+      padding: 5px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .calc-input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 12px 0; 
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+    }
+
+    .calc-btn {
+      width: 100%;
+      padding: 12px;
+      background: #000; 
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .calc-btn:hover { background: #4c4c4c; transform: translateY(-2px); }
+    .save-btn { background: #ff007f; }
+    .save-btn:hover { background: #d6006b; }
+
+    .result {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 12px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .copy-hint {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 5px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* --- SLIDING DRAWER STYLES --- */
+    #drawer-toggle { display: none; }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 1200px;
+      height: 100%;
+      background: #fff;
+      box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+      z-index: 2000;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      padding: 30px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    #drawer-toggle:checked ~ .drawer { transform: translateX(0); }
+
+    .drawer-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.3s;
+      z-index: 1999;
+    }
+
+    #drawer-toggle:checked ~ .drawer-overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .view-details-link {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      color: #666;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .view-details-link:hover { color: #ff007f; }
+
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+
+    .price-table th, .price-table td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* --- MODALS & RECEIPT --- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 350px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .receipt-box {
+        text-align: left;
+        background: #fff;
+        border: 2px solid #333;
+        padding: 20px;
+        margin: 15px 0;
+        font-family: 'Courier New', Courier, monospace;
+        color: #000;
+    }
+    .receipt-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+    .receipt-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; }
+    .receipt-total { border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; font-weight: bold; font-size: 1.1rem; }
+
+    @media (max-width: 900px) {
+      .content { flex-direction: column; align-items: center; }
+      .calculator, .gallery-container { width: 100%; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <nav class="nav-links">
+      <a href="#">Shop</a><a href="#">About</a><a href="#">FAQs</a><a href="#">Contact</a>
+    </nav>
+    <div class="contact-info">
+      <span>📞 +63 919 612 4389</span>
+      <span>✉ contact@inksite.ph</span>
+    </div>
+  </div>
+  <div class="header-bottom">
+    <a href="#" class="logo-container">
+      <img src="https://scontent.filo3-1.fna.fbcdn.net/v/t39.30808-6/583806544_122144720486905265_5338578029396883304_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=KeZzGWhHWFEQ7kNvwHACBQ1&_nc_oc=AdlTAuMPFevy6xm2baP0fWSyWlNszIrNfemmIVQY2R8J_JX7e5o678SEuhlX4XafLf4&_nc_zt=23&_nc_ht=scontent.filo3-1.fna&_nc_gid=5Ne4lX5HLiNr81qTMRWFxg&oh=00_AftGS3a1Fl21zaf2vNzw9cP3Px68q6IXOvm1qlq8vOovPA&oe=699359F2" alt="InkSite Logo" class="logo-img">
+      <span class="logo-text">InkSite</span>
+    </a>
+    <div class="search-container"><input type="text" placeholder="Search designs..."></div>
+    <div style="cursor: pointer; font-size: 1.5rem;">🛒</div>
+  </div>
+</header>
+
+<div class="content">
+  <div class="gallery-container">
+    <h2 class="gallery-title">Tarpaulin Design Samples</h2>
+    <div class="main-image-viewport">
+      <img id="featured" src="https://i.etsystatic.com/27421035/r/il/ecb6e7/4969055171/il_fullxfull.4969055171_ge1b.jpg">
+    </div>
+    <div class="image-tabs">
+      <div class="tab-item active" onclick="changeImage(this, 'https://i.etsystatic.com/27421035/r/il/ecb6e7/4969055171/il_fullxfull.4969055171_ge1b.jpg')"><img src="https://i.etsystatic.com/27421035/r/il/ecb6e7/4969055171/il_fullxfull.4969055171_ge1b.jpg"></div>
+      <div class="tab-item" onclick="changeImage(this, 'https://i.pinimg.com/originals/14/cf/db/14cfdbc2f0432c7755d3ec2164d4b318.jpg')"><img src="https://i.pinimg.com/originals/14/cf/db/14cfdbc2f0432c7755d3ec2164d4b318.jpg"></div>
+      <div class="tab-item" onclick="changeImage(this, 'https://images.template.net/wp-content/uploads/2022/09/Wedding-Tarpaulin-1.jpg')"><img src="https://images.template.net/wp-content/uploads/2022/09/Wedding-Tarpaulin-1.jpg"></div>
+      <div class="tab-item" onclick="changeImage(this, 'https://i.ytimg.com/vi/gmd7bvfLid0/maxresdefault.jpg')"><img src="https://i.ytimg.com/vi/gmd7bvfLid0/maxresdefault.jpg"></div>
+    </div>
+  </div>
+
+  <div class="calculator">
+    <h3 class="calc-header">Order Form</h3>
+    
+    <div class="visual-preview-container">
+      <div id="tarpaulin-box">2ft x 2ft</div>
+    </div>
+
+    <label>Full Name:</label>
+    <input type="text" id="custName" class="calc-input" placeholder="Juan Dela Cruz">
+
+    <label>Phone or Email:</label>
+    <input type="text" id="custEmail" class="calc-input">
+
+    <label>Orientation:</label>
+    <select id="orientation" class="calc-input" onchange="calculatePrice()">
+        <option value="Horizontal">Horizontal (Landscape)</option>
+        <option value="Vertical">Vertical (Portrait)</option>
+    </select>
+
+    <label>Material Type:</label>
+    <select id="tarpType" class="calc-input" onchange="calculatePrice()">
+        <option value="Standard" data-price="15">Standard (10oz) - ₱15/sqft</option>
+        <option value="High-Res" data-price="20">High Resolution (12oz) - ₱20/sqft</option>
+        <option value="Blackout" data-price="25">Blackout (Double Sided) - ₱25/sqft</option>
+    </select>
+
+    <div style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label id="labelWidth">Width (sqft):</label>
+            <input type="number" id="width" class="calc-input" value="2" oninput="calculatePrice()">
+        </div>
+        <div style="flex: 1;">
+            <label id="labelHeight">Height (sqft):</label>
+            <input type="number" id="height" class="calc-input" value="2" oninput="calculatePrice()">
+        </div>
+    </div>
+
+    <label>Eyelets:</label>
+    <select id="eyelets" class="calc-input" onchange="calculatePrice()">
+        <option value="Every 2 Feet">2 Top Corners</option>
+        <option value="Top & Bottom Only">4 Corners</option>
+        <option value="None">None (Hems Only)</option>
+    </select>
+
+    <label>Quantity:</label>
+    <input type="number" id="quantity" class="calc-input" value="1" min="1" oninput="calculatePrice()">
+    
+    <div class="result" id="result">Total: <strong>₱0.00</strong></div>
+
+    <button class="calc-btn save-btn" onclick="saveAndShowReceipt()">Save Order & Receipt</button>
+    <button class="calc-btn" id="orderBtn" onclick="handleOrder()">Order via Messenger</button>
+    
+    <label for="drawer-toggle" class="view-details-link">Specs & Templates</label>
+
+    <p class="copy-hint" id="copyHint">Details will be copied & passed to Messenger!</p>
+  </div>
+</div>
+
+<input type="checkbox" id="drawer-toggle">
+<label for="drawer-toggle" class="drawer-overlay"></label>
+<div class="drawer" style="max-width: 900px; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; border: 1px solid #ddd; border-radius: 12px; background: #fff;">
+    <label for="drawer-toggle" style="float:right; cursor:pointer; font-size:1.5rem; font-weight:bold; color: #999;">&times;</label>
+    <h3 style="color:#ff007f; margin-top:0; margin-bottom: 20px;">Specs & Templates</h3>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+        
+        <div style="flex: 1.2; min-width: 300px;">
+            <p style="font-size: 0.9rem; font-weight: 600; color: #444; margin-bottom: 15px;">Template Dimensions & Safety Guide</p>
+            
+            <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; background: #fafafa; position: relative; height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                
+                <div style="position: absolute; width: 90%; height: 85%; border: 2px solid #d9534f; border-radius: 4px;">
+                    <span style="position: absolute; top: -18px; left: 0; font-size: 10px; color: #d9534f; font-weight: bold;">BLEED (8.75" x 5.75")</span>
+                </div>
+                
+                <div style="position: absolute; width: 85%; height: 75%; border: 2px solid #5bc0de; border-radius: 2px;">
+                    <span style="position: absolute; top: 2px; left: 5px; font-size: 10px; color: #5bc0de; font-weight: bold;">TRIM (8.5" x 5.5")</span>
+                </div>
+                
+                <div style="position: absolute; width: 78%; height: 65%; border: 2px dashed #1bc700; border-radius: 2px;">
+                    <span style="position: absolute; bottom: 2px; right: 5px; font-size: 10px; color: #00d40e; font-weight: bold;">SAFETY (8.25" x 5.25")</span>
+                </div>
+
+                <p style="font-size: 0.75rem; color: #888; text-align: center; z-index: 1; margin-top: 10px;">
+                    Keep critical elements within the <br><strong>dashed safety line</strong>.
+                </p>
+            </div>
+
+            <table style="width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 0.85rem; background: white;">
+                <thead>
+                    <tr style="background: #f8f8f8; border-bottom: 2px solid #ff007f;">
+                        <th style="padding: 10px; text-align: left;">Height</th>
+                        <th style="padding: 10px; text-align: left;">Width</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;">8.75</td><td style="padding: 8px;">5.75</td></tr>
+                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;">8.5</td><td style="padding: 8px;">5.5</td></tr>
+                    <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;">8.25</td><td style="padding: 8px;">5.25</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="flex: 1; min-width: 280px; background: #fff0f6; padding: 25px; border-radius: 12px; border: 1px solid #ffe0ed;">
+            <h4 style="margin-top: 0; color: #c00060;">Customize Size</h4>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #ff007f;">Width (ft)</label>
+                <input type="number" step="0.1" placeholder="Enter width" style="width: 100%; padding: 10px; border: 1px solid #ffb3d9; border-radius: 6px; outline: none;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #ff007f;">Height (ft)</label>
+                <input type="number" step="0.1" placeholder="Enter height" style="width: 100%; padding: 10px; border: 1px solid #ffb3d9; border-radius: 6px; outline: none;">
+            </div>
+
+            <div style="background: white; padding: 15px; border-radius: 8px; font-size: 0.85rem; color: #555;">
+                <strong style="color: #333;">Download Templates</strong><br>
+                
+            </div>
+
+            <button style="width: 100%; margin-top: 20px; background: #ff007f; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s;">
+                Apply Changes
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay" id="instructionModal">
+  <div class="modal-content">
+    <h4>Details Copied! ✅</h4>
+    <button class="calc-btn" onclick="redirectToMessenger()">Open Messenger Now</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="receiptModal">
+    <div class="modal-content">
+        <div id="receipt-print-area">
+            <div class="receipt-box">
+                <div class="receipt-header">
+                    <h3 style="margin:0">INKSITE.PH</h3>
+                    <small id="receipt-date"></small>
+                </div>
+                <div class="receipt-row"><span>Order ID:</span> <span id="r-id"></span></div>
+                <div class="receipt-row"><span>Customer:</span> <span id="r-name"></span></div>
+                <div class="receipt-row"><span>Orientation:</span> <span id="r-orient"></span></div>
+                <div class="receipt-row"><span>Material:</span> <span id="r-type"></span></div>
+                <div class="receipt-row"><span>Size:</span> <span id="r-size"></span></div>
+                <div class="receipt-row"><span>Eyelets:</span> <span id="r-eyelets"></span></div>
+                <div class="receipt-row"><span>Qty:</span> <span id="r-qty"></span></div>
+                <div class="receipt-total">
+                    <div class="receipt-row"><span>TOTAL:</span> <span id="r-total"></span></div>
+                </div>
+            </div>
+        </div>
+        <button class="calc-btn" onclick="window.print()">Print Receipt</button>
+        <button class="calc-btn" style="background:#666" onclick="closeReceipt()">Close</button>
+    </div>
+</div>
+
+<script>
+  let currentOrderMessage = ""; 
+
+  function changeImage(element, src) {
+    const mainImg = document.getElementById('featured');
+    mainImg.style.opacity = 0;
+    setTimeout(() => { 
+        mainImg.src = src; 
+        mainImg.style.opacity = 1; 
+    }, 200);
+    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+    element.classList.add('active');
+  }
+
+  function calculatePrice() {
+    const w = parseFloat(document.getElementById('width').value) || 0;
+    const h = parseFloat(document.getElementById('height').value) || 0;
+    const q = parseInt(document.getElementById('quantity').value) || 1;
+    const orientation = document.getElementById('orientation').value;
+    
+    const typeSelect = document.getElementById('tarpType');
+    const pricePerSqFt = parseFloat(typeSelect.options[typeSelect.selectedIndex].getAttribute('data-price'));
+    
+    const box = document.getElementById('tarpaulin-box');
+    const resultDiv = document.getElementById('result');
+    
+    const price = w * h * pricePerSqFt * q; 
+    resultDiv.innerHTML = "Total: <strong>₱" + price.toLocaleString(undefined, {minimumFractionDigits: 2}) + "</strong>";
+
+    if (w > 0 && h > 0) {
+      box.style.display = "flex";
+      box.innerText = w + "ft x " + h + "ft\n(" + orientation + ")";
+      
+      const maxWidth = 250, maxHeight = 150;
+      let finalWidth, finalHeight;
+
+      if (orientation === "Horizontal") {
+        finalWidth = maxWidth;
+        finalHeight = (h / w) * maxWidth;
+        if (finalHeight > maxHeight) {
+            finalHeight = maxHeight;
+            finalWidth = (w / h) * maxHeight;
+        }
+      } else {
+        finalHeight = maxHeight;
+        finalWidth = (w / h) * maxHeight;
+        if (finalWidth > maxWidth) {
+            finalWidth = maxWidth;
+            finalHeight = (h / w) * maxWidth;
+        }
+      }
+
+      box.style.width = finalWidth + "px";
+      box.style.height = finalHeight + "px";
+    } else {
+      box.style.display = "none";
+    }
+  }
+
+  function saveAndShowReceipt() {
+    const name = document.getElementById('custName').value;
+    const orient = document.getElementById('orientation').value;
+    const w = document.getElementById('width').value;
+    const h = document.getElementById('height').value;
+    const q = document.getElementById('quantity').value;
+    const typeSelect = document.getElementById('tarpType');
+    const pricePerSqFt = parseFloat(typeSelect.options[typeSelect.selectedIndex].getAttribute('data-price'));
+    const price = (w * h * pricePerSqFt * q).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+    if (!name || w <= 0 || h <= 0) {
+      alert("Please enter Name and valid Dimensions.");
+      return;
+    }
+
+    document.getElementById('r-id').innerText = 'INK-' + Math.floor(Math.random() * 90000 + 10000);
+    document.getElementById('r-name').innerText = name;
+    document.getElementById('r-orient').innerText = orient;
+    document.getElementById('r-type').innerText = typeSelect.value;
+    document.getElementById('r-size').innerText = `${w}ft x ${h}ft`;
+    document.getElementById('r-eyelets').innerText = document.getElementById('eyelets').value;
+    document.getElementById('r-qty').innerText = q;
+    document.getElementById('r-total').innerText = '₱' + price;
+    document.getElementById('receipt-date').innerText = new Date().toLocaleString();
+    document.getElementById('receiptModal').style.display = 'flex';
+  }
+
+  function closeReceipt() {
+      document.getElementById('receiptModal').style.display = 'none';
+  }
+
+  function handleOrder() {
+    const name = document.getElementById('custName').value;
+    const orient = document.getElementById('orientation').value;
+    const email = document.getElementById('custEmail').value || 'Not provided';
+    const type = document.getElementById('tarpType').value;
+    const eyelets = document.getElementById('eyelets').value;
+    const w = document.getElementById('width').value;
+    const h = document.getElementById('height').value;
+    const q = document.getElementById('quantity').value;
+    const typeSelect = document.getElementById('tarpType');
+    const pricePerSqFt = parseFloat(typeSelect.options[typeSelect.selectedIndex].getAttribute('data-price'));
+    const price = (w * h * pricePerSqFt * q).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+    if (!name || w <= 0 || h <= 0) {
+      alert("Please fill in your name and dimensions.");
+      return;
+    }
+
+    currentOrderMessage = `NEW ORDER:
+- Name: ${name}
+- Contact: ${email}
+- Orientation: ${orient}
+- Type: Tarpaulin (${type})
+- Size: ${w}ft x ${h}ft
+- Finish: ${eyelets}
+- Quantity: ${q}
+- Total: ₱${price}
+
+Hi InkSite! I'd like to proceed with this order.`;
+
+    navigator.clipboard.writeText(currentOrderMessage).then(() => {
+      document.getElementById('instructionModal').style.display = 'flex';
+      const btn = document.getElementById('orderBtn');
+      btn.innerText = "DETAILS COPIED!";
+      btn.style.background = "#28a745"; 
+
+      setTimeout(redirectToMessenger, 1500);
+    }).catch(err => {
+      redirectToMessenger();
+    });
+  }
+  function updateTarp() {
+    const w = document.getElementById('tarpWidth').value;
+    const h = document.getElementById('tarpHeight').value;
+    const preview = document.getElementById('tarpPreview');
+    const label = document.getElementById('sizeLabel');
+    const priceDisplay = document.getElementById('priceDisplay');
+
+    // Scale logic: multiply feet by 30 to get pixels for display
+    preview.style.width = (w * 30) + "px";
+    preview.style.height = (h * 30) + "px";
+     
+    // Update labels
+    label.innerText = w + "' x " + h + "'";
+    
+    // Simple math: Area * 15 Pesos per sqft
+    const total = w * h * 15;
+    priceDisplay.innerText = "₱" + total.toFixed(2);
+}
+// Run once to initialize
+updateTarp();
+  function redirectToMessenger() {
+    const encodedMsg = encodeURIComponent(currentOrderMessage);
+    window.open(`https://m.me/InkSite.ph?text=${encodedMsg}`, "_blank");
+    document.getElementById('instructionModal').style.display = 'none';
+  }
+
+  calculatePrice();
+
+</script>
+
+</body>
+</html>
