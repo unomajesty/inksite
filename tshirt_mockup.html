@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T-Shirt Mockup </title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --panel: #f5f5f5;
+    --border: #e0e0e0;
+    --accent: #111111;
+    --text: #111111;
+    --muted: #888;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    width: 100%;
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+
+  header span {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .studio {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    gap: 2rem;
+    padding: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* ── T-SHIRT CANVAS ── */
+  .canvas-wrap {
+    flex: 1 1 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .canvas-bg {
+    width: 380px;
+    height: 440px;
+    border-radius: 16px;
+    background: #f7f7f7;
+    border: 1.5px solid var(--border);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .canvas-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #ccc 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.35;
+  }
+
+  #shirtSvg {
+    width: 300px;
+    height: auto;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 10px 24px rgba(0,0,0,0.12));
+    transition: transform 0.35s ease;
+  }
+
+  #shirtSvg:hover { transform: scale(1.02); }
+
+  .design-layer {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #designText {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    text-align: center;
+    line-height: 1.1;
+    white-space: pre-line;
+    word-break: break-word;
+    max-width: 180px;
+    transition: all 0.3s ease;
+    color: #000;
+  }
+
+  #designSubtext {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    max-width: 180px;
+    transition: all 0.3s ease;
+    color: #000;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    flex: 0 0 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+  }
+
+  .section-title {
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+  }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+    margin-top: 0.55rem;
+  }
+
+  label:first-of-type { margin-top: 0; }
+
+  input[type="text"], input[type="range"] { width: 100%; }
+
+  input[type="text"] {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 0.42rem 0.7rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus { border-color: #111; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    height: 3px;
+    background: #ddd;
+    border-radius: 2px;
+    margin-top: 7px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #111;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #aaa;
+  }
+
+  .swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 5px;
+  }
+
+  .swatch {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    outline: 1px solid #ddd;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.active { border-color: #111; outline-color: #111; }
+
+  .text-colors {
+    display: flex;
+    gap: 7px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+
+  .tc {
+    width: 23px; height: 23px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    outline: 1px solid #ddd;
+    transition: transform 0.15s;
+  }
+
+  .tc:hover { transform: scale(1.12); }
+  .tc.active { border-color: #111; outline-color: #111; }
+
+  .font-btns {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+  }
+
+  .font-btn {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .font-btn:hover { border-color: #999; }
+  .font-btn.active { border-color: #111; font-weight: 600; background: #ececec; }
+
+  .view-toggle { display: flex; gap: 8px; }
+
+  .view-btn {
+    flex: 1;
+    padding: 0.42rem;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .view-btn:hover { border-color: #999; color: #111; }
+  .view-btn.active { border-color: #111; color: #111; background: #f0f0f0; font-weight: 500; }
+
+  .dl-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: #111;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .dl-btn:hover { opacity: 0.78; }
+  .dl-btn:active { transform: scale(0.98); }
+
+  @media (max-width: 720px) {
+    .studio { padding: 1rem; gap: 1rem; }
+    .canvas-bg { width: 320px; height: 380px; }
+    #shirtSvg { width: 260px; }
+    .controls { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>InkSite</h1>
+  <span>T-Shirt Mockup</span>
+</header>
+
+<div class="studio">
+
+  <!-- CANVAS -->
+  <div class="canvas-wrap">
+    <div class="canvas-bg" id="canvasBg">
+      <svg id="shirtSvg" viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
+        <path id="shirtBody" d="
+          M 75 55 L 10 95 L 35 130 L 65 110 L 65 280
+          L 235 280 L 235 110 L 265 130 L 290 95 L 225 55
+          Q 210 40 195 38 Q 175 30 150 30 Q 125 30 105 38 Q 90 40 75 55 Z
+        " fill="#ffffff" stroke="none"/>
+        <path id="collar" d="
+          M 105 38 Q 125 30 150 30 Q 175 30 195 38
+          Q 180 65 150 68 Q 120 65 105 38 Z
+        " fill="#dddddd" opacity="0.6"/>
+        <path d="M 75 55 L 10 95 L 35 130 L 65 110 L 75 55 Z" fill="#ddd" opacity="0.5"/>
+        <path d="M 225 55 L 290 95 L 265 130 L 235 110 L 225 55 Z" fill="#ddd" opacity="0.5"/>
+        <path d="M 75 55 L 10 95 L 35 130 L 65 110 L 65 280 L 235 280 L 235 110 L 265 130 L 290 95 L 225 55
+          Q 210 40 195 38 Q 175 30 150 30 Q 125 30 105 38 Q 90 40 75 55 Z"
+          fill="none" stroke="#00000015" stroke-width="1.5"/>
+        <line x1="150" y1="68" x2="148" y2="280" stroke="#0000000d" stroke-width="1"/>
+      </svg>
+
+      <div class="design-layer" id="designLayer">
+        <div id="designText">YOUR TEXT</div>
+        <div id="designSubtext">EST. 2025</div>
+      </div>
+    </div>
+
+    <div class="view-toggle">
+      <button class="view-btn active" onclick="setView('front',this)">Front</button>
+      <button class="view-btn" onclick="setView('back',this)">Back</button>
+      <button class="view-btn" onclick="setView('left',this)">Left</button>
+      <button class="view-btn" onclick="setView('right',this)">Right</button>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+
+    <div class="section">
+      <div class="section-title">Shirt Color</div>
+      <div class="swatches" id="shirtSwatches">
+        <div class="swatch active" style="background:#ffffff" data-color="#ffffff" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#1a1a1a" data-color="#1a1a1a" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#e63946" data-color="#e63946" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#457b9d" data-color="#457b9d" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#2d6a4f" data-color="#2d6a4f" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#e8c547" data-color="#e8c547" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#9b5de5" data-color="#9b5de5" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#ff6b35" data-color="#ff6b35" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#f4a261" data-color="#f4a261" onclick="setShirtColor(this)"></div>
+        <div class="swatch" style="background:#264653" data-color="#264653" onclick="setShirtColor(this)"></div>
+      </div>
+      <label>Custom Color</label>
+      <input type="color" id="customColor" value="#ffffff" onInput="setCustomColor(this.value)"
+        style="width:100%;height:34px;border:1.5px solid #e0e0e0;border-radius:7px;cursor:pointer;padding:2px;">
+    </div>
+
+    <div class="section">
+      <div class="section-title">Design Text</div>
+      <label>Main Text</label>
+      <input type="text" id="mainTextInput" value="YOUR TEXT" oninput="updateText()" maxlength="30">
+      <label>Subtext</label>
+      <input type="text" id="subTextInput" value="EST. 2025" oninput="updateSubtext()" maxlength="30">
+      <label>Size: <span id="sizeVal">28</span>px</label>
+      <input type="range" min="14" max="56" value="28" id="textSize" oninput="updateSize(this.value)">
+    </div>
+
+    <div class="section">
+      <div class="section-title">Text Color</div>
+      <div class="text-colors" id="textColors">
+        <div class="tc active" style="background:#000000" data-color="#000000" onclick="setTextColor(this)"></div>
+        <div class="tc" style="background:#ffffff" data-color="#ffffff" onclick="setTextColor(this)"></div>
+        <div class="tc" style="background:#e63946" data-color="#e63946" onclick="setTextColor(this)"></div>
+        <div class="tc" style="background:#f5c518" data-color="#f5c518" onclick="setTextColor(this)"></div>
+        <div class="tc" style="background:#9b5de5" data-color="#9b5de5" onclick="setTextColor(this)"></div>
+        <div class="tc" style="background:#ff6b35" data-color="#ff6b35" onclick="setTextColor(this)"></div>
+        <div class="tc" style="background:#2d6a4f" data-color="#2d6a4f" onclick="setTextColor(this)"></div>
+        <div class="tc" style="background:#457b9d" data-color="#457b9d" onclick="setTextColor(this)"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Font Style</div>
+      <div class="font-btns" id="fontBtns">
+        <button class="font-btn active" data-font="'Bebas Neue', sans-serif" onclick="setFont(this)">Bold</button>
+        <button class="font-btn" data-font="'DM Sans', sans-serif" onclick="setFont(this)">Clean</button>
+        <button class="font-btn" style="font-style:italic" data-font="Georgia, serif" onclick="setFont(this)">Serif</button>
+        <button class="font-btn" style="font-family:monospace" data-font="'Courier New', monospace" onclick="setFont(this)">Mono</button>
+        <button class="font-btn" style="font-style:italic" data-font="'Times New Roman', serif" onclick="setFont(this)">Italic</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Design Position</div>
+      <label>Vertical: <span id="posYVal">50</span>%</label>
+      <input type="range" min="25" max="80" value="50" id="posY" oninput="updatePosY(this.value)">
+      <label>Horizontal: <span id="posXVal">50</span>%</label>
+      <input type="range" min="25" max="75" value="50" id="posX" oninput="updatePosX(this.value)">
+    </div>
+
+    <button class="dl-btn" onclick="downloadMockup()">⬇ SAVE MOCKUP</button>
+  </div>
+</div>
+
+<script>
+  const q = s => document.querySelector(s);
+  const qa = s => document.querySelectorAll(s);
+
+  function setShirtColor(el) {
+    qa('#shirtSwatches .swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    applyShirtColor(el.dataset.color);
+  }
+
+  function setCustomColor(val) {
+    qa('#shirtSwatches .swatch').forEach(s => s.classList.remove('active'));
+    applyShirtColor(val);
+  }
+
+  function applyShirtColor(color) {
+    q('#shirtBody').setAttribute('fill', color);
+    q('#customColor').value = color;
+    const r = parseInt(color.slice(1,3)||'ff',16);
+    const g = parseInt(color.slice(3,5)||'ff',16);
+    const b = parseInt(color.slice(5,7)||'ff',16);
+    q('#collar').setAttribute('fill', `rgb(${Math.max(0,r-25)},${Math.max(0,g-25)},${Math.max(0,b-25)})`);
+  }
+
+  function updateText() { q('#designText').textContent = q('#mainTextInput').value || ''; }
+  function updateSubtext() { q('#designSubtext').textContent = q('#subTextInput').value || ''; }
+
+  function updateSize(val) {
+    q('#sizeVal').textContent = val;
+    q('#designText').style.fontSize = val + 'px';
+  }
+
+  function setTextColor(el) {
+    qa('#textColors .tc').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    q('#designText').style.color = el.dataset.color;
+    q('#designSubtext').style.color = el.dataset.color;
+  }
+
+  function setFont(el) {
+    qa('#fontBtns .font-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    q('#designText').style.fontFamily = el.dataset.font;
+  }
+
+  function updatePosY(val) { q('#posYVal').textContent = val; q('#designLayer').style.top = val + '%'; }
+  function updatePosX(val) { q('#posXVal').textContent = val; q('#designLayer').style.left = val + '%'; }
+
+  const viewTransforms = {
+    front: 'scaleX(1)',
+    back: 'scaleX(-1)',
+    left: 'perspective(500px) rotateY(25deg)',
+    right: 'perspective(500px) rotateY(-25deg)'
+  };
+
+  function setView(v, btn) {
+    qa('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    q('#shirtSvg').style.transform = viewTransforms[v];
+  }
+
+  function downloadMockup() {
+    if (typeof html2canvas !== 'undefined') {
+      html2canvas(q('#canvasBg'), { backgroundColor: '#f7f7f7', scale: 2 }).then(canvas => {
+        const a = document.createElement('a');
+        a.download = 'tshirt-mockup.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      });
+    } else {
+      alert('Right-click the shirt area to save the image.');
+    }
+  }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>
