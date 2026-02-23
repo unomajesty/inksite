@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T-Shirt Mockup </title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>InkSite — T-Shirt Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -60,7 +60,6 @@
     justify-content: center;
   }
 
-  /* ── T-SHIRT CANVAS ── */
   .canvas-wrap {
     flex: 1 1 400px;
     display: flex;
@@ -106,7 +105,6 @@
   .design-layer {
     position: absolute;
     z-index: 2;
-    pointer-events: none;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -114,6 +112,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    pointer-events: none;
+    max-width: 180px;
   }
 
   #designText {
@@ -137,6 +137,15 @@
     max-width: 180px;
     transition: all 0.3s ease;
     color: #000;
+  }
+
+  /* Uploaded image in design layer */
+  #designImage {
+    max-width: 160px;
+    max-height: 120px;
+    object-fit: contain;
+    display: none;
+    border-radius: 4px;
   }
 
   /* ── CONTROLS ── */
@@ -302,6 +311,135 @@
   .dl-btn:hover { opacity: 0.78; }
   .dl-btn:active { transform: scale(0.98); }
 
+  /* ── IMAGE UPLOAD ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 9px;
+    padding: 1.1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fff;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: #111;
+    background: #f0f0f0;
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-zone .upload-icon {
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+  }
+
+  .upload-zone p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .upload-zone strong {
+    font-size: 0.78rem;
+    color: var(--text);
+    pointer-events: none;
+  }
+
+  /* Image preview thumbnail */
+  .img-preview-row {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 8px;
+  }
+
+  .img-preview-row.visible { display: flex; }
+
+  .img-thumb {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+
+  .img-preview-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .img-preview-info span {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .img-remove {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .img-remove:hover { color: #e63946; background: #fff0f0; }
+
+  /* Image size range */
+  .img-size-row { margin-top: 0.4rem; }
+
+  /* Tab switcher for design type */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0.9rem;
+    background: #ebebeb;
+    border-radius: 7px;
+    padding: 3px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 5px 0;
+    border: none;
+    background: transparent;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab-btn.active {
+    background: #fff;
+    color: #111;
+    font-weight: 600;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.visible { display: block; }
+
   @media (max-width: 720px) {
     .studio { padding: 1rem; gap: 1rem; }
     .canvas-bg { width: 320px; height: 380px; }
@@ -341,6 +479,7 @@
       </svg>
 
       <div class="design-layer" id="designLayer">
+        <img id="designImage" src="" alt="design">
         <div id="designText">YOUR TEXT</div>
         <div id="designSubtext">EST. 2025</div>
       </div>
@@ -357,6 +496,7 @@
   <!-- CONTROLS -->
   <div class="controls">
 
+    <!-- Shirt Color -->
     <div class="section">
       <div class="section-title">Shirt Color</div>
       <div class="swatches" id="shirtSwatches">
@@ -376,16 +516,74 @@
         style="width:100%;height:34px;border:1.5px solid #e0e0e0;border-radius:7px;cursor:pointer;padding:2px;">
     </div>
 
+    <!-- Design section with tabs -->
     <div class="section">
-      <div class="section-title">Design Text</div>
-      <label>Main Text</label>
-      <input type="text" id="mainTextInput" value="YOUR TEXT" oninput="updateText()" maxlength="30">
-      <label>Subtext</label>
-      <input type="text" id="subTextInput" value="EST. 2025" oninput="updateSubtext()" maxlength="30">
-      <label>Size: <span id="sizeVal">28</span>px</label>
-      <input type="range" min="14" max="56" value="28" id="textSize" oninput="updateSize(this.value)">
+      <div class="section-title">Design</div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('text', this)">Text</button>
+        <button class="tab-btn" onclick="switchTab('image', this)">Image</button>
+        <button class="tab-btn" onclick="switchTab('both', this)">Both</button>
+      </div>
+
+      <!-- Text tab -->
+      <div class="tab-content visible" id="tab-text">
+        <label>Main Text</label>
+        <input type="text" id="mainTextInput" value="YOUR TEXT" oninput="updateText()" maxlength="30">
+        <label>Subtext</label>
+        <input type="text" id="subTextInput" value="EST. 2025" oninput="updateSubtext()" maxlength="30">
+        <label>Size: <span id="sizeVal">28</span>px</label>
+        <input type="range" min="14" max="56" value="28" id="textSize" oninput="updateSize(this.value)">
+      </div>
+
+      <!-- Image tab -->
+      <div class="tab-content" id="tab-image">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="imgUpload" accept="image/*" onchange="handleImageUpload(this)">
+          <div class="upload-icon">🖼️</div>
+          <strong>Click or drag to upload</strong>
+          <p>PNG, JPG, SVG, WebP</p>
+        </div>
+        <div class="img-preview-row" id="imgPreviewRow">
+          <img class="img-thumb" id="imgThumb" src="" alt="">
+          <div class="img-preview-info">
+            <span id="imgFileName">—</span>
+          </div>
+          <button class="img-remove" onclick="removeImage()" title="Remove image">✕</button>
+        </div>
+        <div class="img-size-row">
+          <label>Image Size: <span id="imgSizeVal">100</span>%</label>
+          <input type="range" min="30" max="200" value="100" id="imgSizeRange" oninput="updateImageSize(this.value)">
+        </div>
+      </div>
+
+      <!-- Both tab -->
+      <div class="tab-content" id="tab-both">
+        <div class="upload-zone" id="uploadZoneBoth">
+          <input type="file" id="imgUploadBoth" accept="image/*" onchange="handleImageUpload(this)">
+          <div class="upload-icon">🖼️</div>
+          <strong>Click or drag to upload</strong>
+          <p>PNG, JPG, SVG, WebP</p>
+        </div>
+        <div class="img-preview-row" id="imgPreviewRowBoth">
+          <img class="img-thumb" id="imgThumbBoth" src="" alt="">
+          <div class="img-preview-info">
+            <span id="imgFileNameBoth">—</span>
+          </div>
+          <button class="img-remove" onclick="removeImage()" title="Remove image">✕</button>
+        </div>
+        <label style="margin-top:10px">Main Text</label>
+        <input type="text" id="mainTextInputBoth" oninput="updateTextBoth()" maxlength="30" placeholder="YOUR TEXT">
+        <label>Subtext</label>
+        <input type="text" id="subTextInputBoth" oninput="updateSubtextBoth()" maxlength="30" placeholder="EST. 2025">
+        <label>Image Size: <span id="imgSizeValBoth">100</span>%</label>
+        <input type="range" min="30" max="200" value="100" id="imgSizeRangeBoth" oninput="updateImageSizeBoth(this.value)">
+        <label>Text Size: <span id="sizeValBoth">22</span>px</label>
+        <input type="range" min="10" max="48" value="22" id="textSizeBoth" oninput="updateSizeBoth(this.value)">
+      </div>
     </div>
 
+    <!-- Text Color -->
     <div class="section">
       <div class="section-title">Text Color</div>
       <div class="text-colors" id="textColors">
@@ -400,6 +598,7 @@
       </div>
     </div>
 
+    <!-- Font -->
     <div class="section">
       <div class="section-title">Font Style</div>
       <div class="font-btns" id="fontBtns">
@@ -411,6 +610,7 @@
       </div>
     </div>
 
+    <!-- Position -->
     <div class="section">
       <div class="section-title">Design Position</div>
       <label>Vertical: <span id="posYVal">50</span>%</label>
@@ -427,6 +627,7 @@
   const q = s => document.querySelector(s);
   const qa = s => document.querySelectorAll(s);
 
+  // ── SHIRT COLOR ──
   function setShirtColor(el) {
     qa('#shirtSwatches .swatch').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
@@ -447,13 +648,13 @@
     q('#collar').setAttribute('fill', `rgb(${Math.max(0,r-25)},${Math.max(0,g-25)},${Math.max(0,b-25)})`);
   }
 
+  // ── TEXT ──
   function updateText() { q('#designText').textContent = q('#mainTextInput').value || ''; }
   function updateSubtext() { q('#designSubtext').textContent = q('#subTextInput').value || ''; }
-
-  function updateSize(val) {
-    q('#sizeVal').textContent = val;
-    q('#designText').style.fontSize = val + 'px';
-  }
+  function updateTextBoth() { q('#designText').textContent = q('#mainTextInputBoth').value || ''; }
+  function updateSubtextBoth() { q('#designSubtext').textContent = q('#subTextInputBoth').value || ''; }
+  function updateSize(val) { q('#sizeVal').textContent = val; q('#designText').style.fontSize = val + 'px'; }
+  function updateSizeBoth(val) { q('#sizeValBoth').textContent = val; q('#designText').style.fontSize = val + 'px'; }
 
   function setTextColor(el) {
     qa('#textColors .tc').forEach(t => t.classList.remove('active'));
@@ -468,9 +669,11 @@
     q('#designText').style.fontFamily = el.dataset.font;
   }
 
+  // ── POSITION ──
   function updatePosY(val) { q('#posYVal').textContent = val; q('#designLayer').style.top = val + '%'; }
   function updatePosX(val) { q('#posXVal').textContent = val; q('#designLayer').style.left = val + '%'; }
 
+  // ── VIEW ──
   const viewTransforms = {
     front: 'scaleX(1)',
     back: 'scaleX(-1)',
@@ -484,9 +687,115 @@
     q('#shirtSvg').style.transform = viewTransforms[v];
   }
 
+  // ── TAB SWITCHING ──
+  function switchTab(tab, btn) {
+    qa('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    qa('.tab-content').forEach(c => c.classList.remove('visible'));
+    q('#tab-' + tab).classList.add('visible');
+
+    const img = q('#designImage');
+    const txt = q('#designText');
+    const sub = q('#designSubtext');
+
+    if (tab === 'text') {
+      img.style.display = 'none';
+      txt.style.display = 'block';
+      sub.style.display = 'block';
+      txt.textContent = q('#mainTextInput').value || '';
+      sub.textContent = q('#subTextInput').value || '';
+    } else if (tab === 'image') {
+      txt.style.display = 'none';
+      sub.style.display = 'none';
+      img.style.display = currentImageSrc ? 'block' : 'none';
+    } else {
+      img.style.display = currentImageSrc ? 'block' : 'none';
+      txt.style.display = 'block';
+      sub.style.display = 'block';
+      txt.textContent = q('#mainTextInputBoth').value || '';
+      sub.textContent = q('#subTextInputBoth').value || '';
+    }
+  }
+
+  // ── IMAGE UPLOAD ──
+  let currentImageSrc = null;
+
+  function handleImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentImageSrc = e.target.result;
+      const img = q('#designImage');
+      img.src = currentImageSrc;
+      img.style.display = 'block';
+      img.style.width = '100px';
+
+      // Update both preview rows
+      ['', 'Both'].forEach(suffix => {
+        const row = q(`#imgPreviewRow${suffix}`);
+        const thumb = q(`#imgThumb${suffix}`);
+        const fname = q(`#imgFileName${suffix}`);
+        if (row && thumb && fname) {
+          row.classList.add('visible');
+          thumb.src = currentImageSrc;
+          const name = file.name.length > 22 ? file.name.slice(0,20) + '…' : file.name;
+          fname.textContent = name;
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeImage() {
+    currentImageSrc = null;
+    const img = q('#designImage');
+    img.src = '';
+    img.style.display = 'none';
+    ['', 'Both'].forEach(suffix => {
+      const row = q(`#imgPreviewRow${suffix}`);
+      if (row) row.classList.remove('visible');
+    });
+    q('#imgUpload').value = '';
+    q('#imgUploadBoth').value = '';
+  }
+
+  function updateImageSize(val) {
+    q('#imgSizeVal').textContent = val;
+    q('#designImage').style.width = val + 'px';
+    q('#designImage').style.maxWidth = 'none';
+    q('#designImage').style.maxHeight = 'none';
+  }
+
+  function updateImageSizeBoth(val) {
+    q('#imgSizeValBoth').textContent = val;
+    q('#designImage').style.width = val + 'px';
+    q('#designImage').style.maxWidth = 'none';
+    q('#designImage').style.maxHeight = 'none';
+  }
+
+  // Drag-over styling
+  ['uploadZone','uploadZoneBoth'].forEach(id => {
+    const zone = q('#' + id);
+    if (!zone) return;
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const fakeInput = { files: [file] };
+        handleImageUpload(fakeInput);
+      }
+    });
+  });
+
+  // ── DOWNLOAD ──
   function downloadMockup() {
     if (typeof html2canvas !== 'undefined') {
-      html2canvas(q('#canvasBg'), { backgroundColor: '#f7f7f7', scale: 2 }).then(canvas => {
+      html2canvas(q('#canvasBg'), { backgroundColor: '#f7f7f7', scale: 2, useCORS: true }).then(canvas => {
         const a = document.createElement('a');
         a.download = 'tshirt-mockup.png';
         a.href = canvas.toDataURL('image/png');
@@ -501,5 +810,3 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
-
-
