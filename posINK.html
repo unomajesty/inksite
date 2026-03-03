@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InkSite Studio | POS System</title>
+    <style>
+        :root {
+            --inksite-blue: rgb(0, 161, 255);
+            --inksite-pink: rgb(255, 51, 133);
+            --inksite-yellow: rgb(255, 215, 64);
+            --bg-dark: #0f172a;
+            --border-color: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #fdfdfe; 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* Left Side: POS Container */
+        .pos-container {
+            background: white;
+            flex: 1;
+            max-width: 380px; 
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f0f0f0;
+        }
+
+        /* Right Side: Activity Container */
+        .activity-container {
+            background: white;
+            flex: 1;
+            max-width: 400px;
+            height: 600px;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h2 { margin: 0; color: var(--bg-dark); font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { color: var(--inksite-blue); margin: 2px 0 0; font-weight: 700; text-transform: uppercase; font-size: 0.5rem; letter-spacing: 1px; }
+
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.55rem; color: #94a3b8; margin-bottom: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
+
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            box-sizing: border-box;
+            color: var(--bg-dark);
+            background: #fcfdfe;
+            outline: none;
+        }
+
+        .order-row {
+            display: grid;
+            grid-template-columns: 1.2fr 70px 45px 35px;
+            gap: 6px;
+            align-items: end;
+            margin-bottom: 8px;
+        }
+
+        .add-item-btn {
+            background: var(--inksite-blue);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .current-items-preview {
+            max-height: 100px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px dashed #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .preview-line {
+            font-size: 0.65rem;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .divider { height: 1px; background: #f8fafc; margin: 15px 0; }
+
+        .total-section {
+            background: var(--bg-dark);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .total-price-input {
+            background: transparent;
+            border: none;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--inksite-yellow);
+            text-align: right;
+            width: 100%;
+        }
+
+        .order-list { flex-grow: 1; overflow-y: auto; margin-top: 10px; }
+        .order-item {
+            font-size: 0.7rem;
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .order-item .cust-tag { font-weight: 800; color: var(--bg-dark); font-size: 0.75rem; }
+        .order-item .item-tag { color: #64748b; font-size: 0.65rem; }
+
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--inksite-pink);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .csv-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f1f5f9;
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+    <div class="pos-container">
+        <div class="header">
+            <h2>InkSite Studio</h2>
+            <p>Order Management Pro</p>
+        </div>
+
+        <div class="input-group">
+            <label>Customer Name</label>
+            <input type="text" id="cust-name" placeholder="Client Name">
+        </div>
+
+        <div class="input-group">
+            <label>Contact Info</label>
+            <input type="tel" id="cust-contact" placeholder="0344321234">
+        </div>
+
+        <div class="divider"></div>
+
+        <label>Current Order Items</label>
+        <div id="current-items-preview" class="current-items-preview">
+            <div style="color:#cbd5e1; font-size: 0.6rem; text-align:center;">Add items to this order...</div>
+        </div>
+
+        <div class="order-row">
+            <div>
+                <select id="item-select">
+                    <option value="" disabled selected>Item</option>
+                    <optgroup label="Brunch Club">
+                        <option value="Beef Tapa Bowl">Beef Tapa Bowl</option>
+                        <option value="Truffle Pizza">Truffle Pizza</option>
+                    </optgroup>
+                    <optgroup label="Dozy Coffee">
+                        <option value="Spanish Latte">Spanish Latte</option>
+                        <option value="Dirty Matcha">Dirty Matcha</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div><input type="number" id="unit-price" placeholder="Price"></div>
+            <div><input type="number" id="qty" placeholder="Qty" value="1"></div>
+            <button class="add-item-btn" onclick="addToCart()">+</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="total-section">
+            <label style="color: #64748b; font-size: 0.5rem;">Running Total (PHP)</label>
+            <input type="number" id="total-price" class="total-price-input" value="0.00" readonly>
+        </div>
+
+        <div class="footer-inputs">
+            <div class="input-group">
+                <label>Cashier</label>
+                <input type="text" id="cashier" placeholder="Name">
+            </div>
+            <div class="input-group">
+                <label>Date</label>
+                <input type="date" id="date-picker">
+            </div>
+        </div>
+
+        <button class="save-btn" onclick="saveTransaction()">Save Transaction</button>
+    </div>
+
+    <div class="activity-container">
+        <div class="header" style="text-align: left;">
+            <h2>Daily Activity</h2>
+            <p>Saved Transactions for today</p>
+        </div>
+        
+        <div id="activity-list" class="order-list">
+            <div style="color: #cbd5e1; font-size: 0.7rem; text-align: center; margin-top: 50px;">
+                No history yet...
+            </div>
+        </div>
+
+        <button class="csv-btn" onclick="downloadCSV()">Download Daily Report (.CSV)</button>
+    </div>
+</div>
+
+<script>
+    let currentCart = [];
+    let allTransactions = [];
+    let runningTotal = 0;
+
+    document.getElementById('date-picker').valueAsDate = new Date();
+
+    function addToCart() {
+        const item = document.getElementById('item-select').value;
+        const price = parseFloat(document.getElementById('unit-price').value);
+        const qty = parseInt(document.getElementById('qty').value);
+
+        if (!item || isNaN(price)) {
+            alert("Babes, pick an item and price first! 🙄");
+            return;
+        }
+
+        const subtotal = price * qty;
+        runningTotal += subtotal;
+
+        currentCart.push({ item, price, qty, subtotal });
+        
+        updateCartPreview();
+        
+        // Reset Item Pickers
+        document.getElementById('unit-price').value = '';
+        document.getElementById('qty').value = '1';
+        document.getElementById('item-select').selectedIndex = 0;
+    }
+
+    function updateCartPreview() {
+        const preview = document.getElementById('current-items-preview');
+        document.getElementById('total-price').value = runningTotal.toFixed(2);
+
+        if (currentCart.length === 0) {
+            preview.innerHTML = `<div style="color:#cbd5e1; font-size: 0.6rem; text-align:center;">Add items to this order...</div>`;
+            return;
+        }
+
+        preview.innerHTML = currentCart.map(i => `
+            <div class="preview-line">
+                <span>${i.qty}x ${i.item}</span>
+                <span>₱${i.subtotal.toFixed(2)}</span>
+            </div>
+        `).join('');
+    }
+
+    function saveTransaction() {
+        const custName = document.getElementById('cust-name').value || "Guest";
+        
+        if (currentCart.length === 0) {
+            alert("The cart is empty, love! 💁‍♀️");
+            return;
+        }
+
+        const transaction = {
+            date: document.getElementById('date-picker').value,
+            customer: custName,
+            contact: document.getElementById('cust-contact').value || "N/A",
+            items: currentCart.map(i => `${i.qty}x ${i.item}`).join(" | "),
+            total: runningTotal,
+            cashier: document.getElementById('cashier').value || "Staff"
+        };
+
+        allTransactions.push(transaction);
+        updateActivityLog();
+
+        // Reset POS for next customer
+        currentCart = [];
+        runningTotal = 0;
+        document.getElementById('cust-name').value = '';
+        document.getElementById('cust-contact').value = '';
+        updateCartPreview();
+        alert("Saved! Customer cleared for next transaction. 💅");
+    }
+
+    function updateActivityLog() {
+        const log = document.getElementById('activity-list');
+        
+        log.innerHTML = allTransactions.slice().reverse().map(t => `
+            <div class="order-item">
+                <div style="display:flex; justify-content:space-between;">
+                    <span class="cust-tag">${t.customer}</span>
+                    <span style="font-weight:800; color:var(--inksite-blue);">₱${t.total.toFixed(2)}</span>
+                </div>
+                <div class="item-tag">${t.items}</div>
+                <div style="font-size:0.5rem; color:#cbd5e1; margin-top:2px;">Cashier: ${t.cashier}</div>
+            </div>
+        `).join('');
+    }
+
+    function downloadCSV() {
+        if (allTransactions.length === 0) {
+            alert("Nothing to export! 🙄");
+            return;
+        }
+
+        const headers = ["Date", "Customer", "Contact", "Orders", "Grand Total", "Cashier"];
+        const rows = allTransactions.map(t => [t.date, t.customer, t.contact, `"${t.items}"`, t.total, t.cashier]);
+
+        let csvContent = "data:text/csv;charset=utf-8," 
+            + headers.join(",") + "\n"
+            + rows.map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `InkSite_Report_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
