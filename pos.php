@@ -141,10 +141,21 @@
             font-weight: 800;
             text-transform: uppercase;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+            background: #22c55e; /* Green flash on click */
         }
 
         .order-list { flex-grow: 1; overflow-y: auto; }
-        .order-item { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .order-item { padding: 12px; border-bottom: 1px solid #f1f5f9; animation: slideIn 0.3s ease-out; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
 
         .csv-btn {
             width: 100%;
@@ -204,7 +215,7 @@
             <div class="input-group"><label>Date</label><input type="date" id="date-picker"></div>
         </div>
 
-        <button class="save-btn" onclick="saveTransaction()">Save Transaction</button>
+        <button class="save-btn" id="save-btn" onclick="saveTransaction()">Save Transaction</button>
     </div>
 
     <!-- ACTIVITY LOG SIDE -->
@@ -231,19 +242,16 @@
         const basePrice = parseFloat(document.getElementById('unit-price').value);
         const qty = parseInt(document.getElementById('qty').value);
 
-        if (!item || isNaN(basePrice)) { alert("Please enter item name and price!"); return; }
+        if (!item || isNaN(basePrice)) return;
 
         let sizePrice = 0;
-        // Logic: Extract dimensions (e.g., 2 X 3)
         const dimMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*X\s*(\d+(?:\.\d+)?)/);
 
         if (dimMatch) {
             const w = parseFloat(dimMatch[1]);
             const h = parseFloat(dimMatch[2]);
-            // Example: 2 x 3 x 15 = 90
             sizePrice = w * h * basePrice; 
         } else {
-            // Fallback: If no dimensions, Size Price is just the Base Price
             sizePrice = basePrice;
         }
 
@@ -253,7 +261,7 @@
         currentCart.push({ 
             items: item, 
             size: sizeStr || "N/A", 
-            sizePrice: sizePrice, // The calculated unit area price
+            sizePrice: sizePrice, 
             quantity: qty, 
             price: subtotal 
         });
@@ -290,18 +298,19 @@
             customerNumber: document.getElementById('cust-contact').value || "N/A",
             cashier: document.getElementById('cashier').value.toUpperCase() || "STAFF",
             date: document.getElementById('date-picker').value,
-            items: [...currentCart]
+            items: [...currentCart],
+            grandTotal: runningTotal
         };
 
         allTransactions.push(transaction);
         updateHistoryUI();
 
+        // Direct Reset (No Alert)
         currentCart = [];
         runningTotal = 0;
         document.getElementById('cust-name').value = '';
         document.getElementById('cust-contact').value = '';
         updateCartUI();
-        alert("Transaction Saved!");
     }
 
     function updateHistoryUI() {
@@ -310,18 +319,19 @@
             <div class="order-item">
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
                     <strong>${t.customerName}</strong>
-                    <span style="color:var(--inksite-blue); font-weight:800;">${t.items.length} Items</span>
+                    <span style="color:var(--inksite-blue); font-weight:800;">₱${t.grandTotal.toFixed(2)}</span>
                 </div>
-                <div style="font-size:0.6rem; color:#64748b; margin-top:2px;">Date: ${t.date}</div>
+                <div style="font-size:0.6rem; color:#64748b; margin-top:2px;">
+                    ${t.items.length} Items • ${t.date}
+                </div>
             </div>
         `).join('');
     }
 
     function exportToExcel() {
-        if (allTransactions.length === 0) { alert("No data to export!"); return; }
+        if (allTransactions.length === 0) return;
 
         const excelData = [];
-        // Header according to your exact requirement
         const headers = ["CUSTOMER NAME", "CUSTOMER NUMBER", "CASHIER", "DATE", "ITEMS", "SIZE", "SIZE PRICE", "QUANTITY", "PRICE"];
         excelData.push(headers);
 
@@ -334,9 +344,9 @@
                     t.date,
                     i.items,
                     i.size,
-                    i.sizePrice.toFixed(2), // W * H * Base Price
+                    i.sizePrice.toFixed(2),
                     i.quantity,
-                    i.price.toFixed(2)      // Size Price * Quantity
+                    i.price.toFixed(2)
                 ]);
             });
         });
@@ -357,4 +367,3 @@
 
 </body>
 </html>
-
