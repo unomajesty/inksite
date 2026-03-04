@@ -188,7 +188,7 @@
 
         <div class="order-row">
             <div><label>Items</label><input type="text" id="item-name" placeholder="PRINT"></div>
-            <div><label>Size</label><input type="text" id="item-size" placeholder="4 X 7 or LONG"></div>
+            <div><label>Size</label><input type="text" id="item-size" placeholder="2 X 3"></div>
             <div><label>Base Price</label><input type="number" id="unit-price" placeholder="15"></div>
             <div><label>Quantity</label><input type="number" id="qty" value="1"></div>
             <button class="add-item-btn" onclick="addToCart()">+</button>
@@ -223,7 +223,6 @@
     let allTransactions = [];
     let runningTotal = 0;
 
-    // Default Date to Today
     document.getElementById('date-picker').valueAsDate = new Date();
 
     function addToCart() {
@@ -234,29 +233,33 @@
 
         if (!item || isNaN(basePrice)) { alert("Please enter item name and price!"); return; }
 
-        // Calculation Logic
-        let subtotal = 0;
+        let sizePrice = 0;
+        // Logic: Extract dimensions (e.g., 2 X 3)
         const dimMatch = sizeStr.match(/(\d+(?:\.\d+)?)\s*X\s*(\d+(?:\.\d+)?)/);
 
         if (dimMatch) {
             const w = parseFloat(dimMatch[1]);
             const h = parseFloat(dimMatch[2]);
-            subtotal = w * h * basePrice * qty; // Dimension Math
+            // Example: 2 x 3 x 15 = 90
+            sizePrice = w * h * basePrice; 
         } else {
-            subtotal = basePrice * qty; // Standard Math
+            // Fallback: If no dimensions, Size Price is just the Base Price
+            sizePrice = basePrice;
         }
 
+        const subtotal = sizePrice * qty;
         runningTotal += subtotal;
+
         currentCart.push({ 
             items: item, 
             size: sizeStr || "N/A", 
+            sizePrice: sizePrice, // The calculated unit area price
             quantity: qty, 
             price: subtotal 
         });
         
         updateCartUI();
         
-        // Reset Item fields
         document.getElementById('item-name').value = '';
         document.getElementById('item-size').value = '';
         document.getElementById('unit-price').value = '';
@@ -273,7 +276,7 @@
         }
         preview.innerHTML = currentCart.map(i => `
             <div class="preview-line">
-                <span><strong>${i.items}</strong> (${i.size}) x${i.quantity}</span>
+                <span><strong>${i.items}</strong> (${i.size}) @ ₱${i.sizePrice.toFixed(2)} x${i.quantity}</span>
                 <span>₱${i.price.toFixed(2)}</span>
             </div>
         `).join('');
@@ -293,7 +296,6 @@
         allTransactions.push(transaction);
         updateHistoryUI();
 
-        // Clear for next customer
         currentCart = [];
         runningTotal = 0;
         document.getElementById('cust-name').value = '';
@@ -318,9 +320,9 @@
     function exportToExcel() {
         if (allTransactions.length === 0) { alert("No data to export!"); return; }
 
-        // 1. Prepare Data Rows based on your screenshot
         const excelData = [];
-        const headers = ["CUSTOMER NAME", "CUSTOMER NUMBER", "CASHIER", "DATE", "ITEMS", "SIZE", "QUANTITY", "PRICE"];
+        // Header according to your exact requirement
+        const headers = ["CUSTOMER NAME", "CUSTOMER NUMBER", "CASHIER", "DATE", "ITEMS", "SIZE", "SIZE PRICE", "QUANTITY", "PRICE"];
         excelData.push(headers);
 
         allTransactions.forEach(t => {
@@ -332,31 +334,22 @@
                     t.date,
                     i.items,
                     i.size,
+                    i.sizePrice.toFixed(2), // W * H * Base Price
                     i.quantity,
-                    i.price.toFixed(2)
+                    i.price.toFixed(2)      // Size Price * Quantity
                 ]);
             });
         });
 
-        // 2. Create Sheet
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(excelData);
 
-        // 3. SET COLUMN WIDTHS (This makes it look exactly like your screenshot)
-        // 25 = Wide, 15 = Medium, 10 = Standard
         const wscols = [
-            { wch: 25 }, // Customer Name
-            { wch: 20 }, // Customer Number
-            { wch: 15 }, // Cashier
-            { wch: 15 }, // Date
-            { wch: 20 }, // Items
-            { wch: 15 }, // Size
-            { wch: 12 }, // Quantity
-            { wch: 15 }  // Price
+            { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, 
+            { wch: 20 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 15 }
         ];
         ws['!cols'] = wscols;
 
-        // 4. Download File
         XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
         XLSX.writeFile(wb, `InkSite_Report_${new Date().toLocaleDateString()}.xlsx`);
     }
