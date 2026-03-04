@@ -146,16 +146,42 @@
 
         .save-btn:active {
             transform: scale(0.98);
-            background: #22c55e; /* Green flash on click */
+            background: #22c55e;
         }
 
         .order-list { flex-grow: 1; overflow-y: auto; }
-        .order-item { padding: 12px; border-bottom: 1px solid #f1f5f9; animation: slideIn 0.3s ease-out; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
+        
+        .order-item { 
+            padding: 12px; 
+            border-bottom: 1px solid #f1f5f9; 
+            cursor: pointer;
+            transition: background 0.2s;
         }
+        
+        .order-item:hover {
+            background: #f8fafc;
+        }
+
+        /* Order Details Dropdown Styles */
+        .order-details {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .detail-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        .detail-line:last-child { border-bottom: none; }
 
         .csv-btn {
             width: 100%;
@@ -206,7 +232,6 @@
         </div>
 
         <div class="total-section">
-            <label style="color: #64748b; font-size: 0.55rem;">Current Total (PHP)</label>
             <input type="number" id="total-price" class="total-price-input" value="0.00" readonly>
         </div>
 
@@ -215,14 +240,14 @@
             <div class="input-group"><label>Date</label><input type="date" id="date-picker"></div>
         </div>
 
-        <button class="save-btn" id="save-btn" onclick="saveTransaction()">Save Transaction</button>
+        <button class="save-btn" onclick="saveTransaction()">Save Transaction</button>
     </div>
 
     <!-- ACTIVITY LOG SIDE -->
     <div class="activity-container">
         <div class="header" style="text-align: left;">
             <h2>Daily Activity</h2>
-            <p>Sales History</p>
+            <p>Sales History (Click to view details)</p>
         </div>
         <div id="activity-list" class="order-list"></div>
         <button class="csv-btn" onclick="exportToExcel()">Download Excel Report (.XLSX)</button>
@@ -294,6 +319,7 @@
         if (currentCart.length === 0) return;
 
         const transaction = {
+            id: Date.now(),
             customerName: document.getElementById('cust-name').value.toUpperCase() || "GUEST",
             customerNumber: document.getElementById('cust-contact').value || "N/A",
             cashier: document.getElementById('cashier').value.toUpperCase() || "STAFF",
@@ -305,7 +331,6 @@
         allTransactions.push(transaction);
         updateHistoryUI();
 
-        // Direct Reset (No Alert)
         currentCart = [];
         runningTotal = 0;
         document.getElementById('cust-name').value = '';
@@ -313,16 +338,35 @@
         updateCartUI();
     }
 
+    function toggleDetails(id) {
+        const detailDiv = document.getElementById(`details-${id}`);
+        if (detailDiv.style.display === "block") {
+            detailDiv.style.display = "none";
+        } else {
+            detailDiv.style.display = "block";
+        }
+    }
+
     function updateHistoryUI() {
         const list = document.getElementById('activity-list');
         list.innerHTML = allTransactions.slice().reverse().map(t => `
-            <div class="order-item">
+            <div class="order-item" onclick="toggleDetails(${t.id})">
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
                     <strong>${t.customerName}</strong>
                     <span style="color:var(--inksite-blue); font-weight:800;">₱${t.grandTotal.toFixed(2)}</span>
                 </div>
-                <div style="font-size:0.6rem; color:#64748b; margin-top:2px;">
+                <div style="font-size:0.55rem; color:#94a3b8; margin-top:2px;">
                     ${t.items.length} Items • ${t.date}
+                </div>
+                
+                <div id="details-${t.id}" class="order-details">
+                    <div style="font-weight:800; border-bottom:1px solid #cbd5e1; margin-bottom:5px; padding-bottom:2px;">ORDER DETAILS:</div>
+                    ${t.items.map(i => `
+                        <div class="detail-line">
+                            <span>${i.items} @ ₱${i.sizePrice.toFixed(2)} X ${i.quantity}</span>
+                            <span style="font-weight:700;">| ₱${i.price.toFixed(2)}</span>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
         `).join('');
@@ -330,36 +374,15 @@
 
     function exportToExcel() {
         if (allTransactions.length === 0) return;
-
-        const excelData = [];
-        const headers = ["CUSTOMER NAME", "CUSTOMER NUMBER", "CASHIER", "DATE", "ITEMS", "SIZE", "SIZE PRICE", "QUANTITY", "PRICE"];
-        excelData.push(headers);
-
+        const excelData = [["CUSTOMER NAME", "CUSTOMER NUMBER", "CASHIER", "DATE", "ITEMS", "SIZE", "SIZE PRICE", "QUANTITY", "PRICE"]];
         allTransactions.forEach(t => {
             t.items.forEach(i => {
-                excelData.push([
-                    t.customerName,
-                    t.customerNumber,
-                    t.cashier,
-                    t.date,
-                    i.items,
-                    i.size,
-                    i.sizePrice.toFixed(2),
-                    i.quantity,
-                    i.price.toFixed(2)
-                ]);
+                excelData.push([t.customerName, t.customerNumber, t.cashier, t.date, i.items, i.size, i.sizePrice.toFixed(2), i.quantity, i.price.toFixed(2)]);
             });
         });
-
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(excelData);
-
-        const wscols = [
-            { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, 
-            { wch: 20 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 15 }
-        ];
-        ws['!cols'] = wscols;
-
+        ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 15 }];
         XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
         XLSX.writeFile(wb, `InkSite_Report_${new Date().toLocaleDateString()}.xlsx`);
     }
