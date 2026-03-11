@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Creasio — SEO & Digital Marketing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple:      #7B5EA7;
+      --purple-hero: #7B61D4;
+      --purple-cta:  #6B54C0;
+      --purple-ft:   #5A47A8;
+      --teal:        #5EC4C0;
+      --white:       #ffffff;
+      --off-white:   #f7f7f5;
+      --light:       #f4f4f8;
+      --dark:        #1c1c2e;
+      --body:        #444;
+      --gray:        #888;
+      --border:      #e2e2ec;
+      --page-margin: 60px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--dark);
+      background: #FCFCFF;
+      overflow-x: hidden;
+    }
+
+    nav {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 5%;
+    }
+    .logo {
+      font-size: .85rem; font-weight: 900;
+      color: #fff; letter-spacing: 2px; text-transform: uppercase;
+    }
+    .nav-links { list-style: none; display: flex; gap: 3rem; }
+    .nav-links a {
+      text-decoration: none; color: rgba(255,255,255,.9);
+      font-size: .85rem; font-weight: 600; transition: color .2s;
+    }
+    .nav-links a:hover { color: #fff; }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: .3rem; z-index: 300;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: #fff; border-radius: 2px; transition: transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .hero {
+      background: var(--purple-hero);
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .hero-waves {
+      position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    }
+    .hero-waves svg { position: absolute; width: 100%; height: 100%; }
+
+    .hero-left {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 8rem 5% 8rem;
+      max-width: 750px;
+    }
+    .hero-left h1 {
+      font-size: clamp(1rem, 6vw, 4.2rem);
+      font-weight: 900; color: #fff;
+      line-height: 1.05; letter-spacing: -1.5px;
+      margin-bottom: 1.6rem;
+    }
+    .hero-left p {
+      color: rgba(255,255,255,.65); font-size: .9rem;
+      line-height: 1.8; max-width: 480px; margin-bottom: 3rem;
+    }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: .5rem;
+      border: 1.5px solid rgba(255,255,255,.6);
+      color: #fff; background: transparent;
+      padding: .75rem 1.6rem;
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      text-decoration: none; width: fit-content;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.12); border-color: #fff; }
+
+    .hero-right {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 38%;
+      z-index: 2;
+    }
+    .hero-card {
+      background: #fff;
+      padding: 2.8rem 2.6rem 3.2rem;
+      width: 100%; position: relative;
+      box-shadow: -8px 0 40px rgba(0,0,0,.1);
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute; top: -14px; left: -14px;
+      width: 28px; height: 28px;
+      background: var(--teal); transform: rotate(45deg); border-radius: 3px;
+    }
+    .hero-card h3 {
+      font-size: 1.35rem; font-weight: 800;
+      color: var(--dark); margin-bottom: .6rem; letter-spacing: -.4px;
+    }
+    .hero-card p { font-size: .82rem; color: var(--gray); line-height: 1.65; }
+
+    /* ── BRANDS ── */
+    .brands-wrapper {
+      position: relative;
+      width: 100%;
+      margin-top: 2.5rem;
+      background: var(--light);
+      padding: 2rem 5%;
+    }
+    .brands {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3.5rem;
+      flex-wrap: wrap;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Each brand logo wrapper */
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      opacity: .55;
+      transition: opacity .25s;
+      cursor: default;
+      flex-shrink: 0;
+    }
+    .brand-logo:hover { opacity: .85; }
+
+    /* Logo mark (the icon part) */
+    .brand-mark svg,
+    .brand-mark img {
+      display: block;
+    }
+
+    /* Logo wordmark (text part) */
+    .brand-wordmark {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand-wordmark .wm-top {
+      font-size: .6rem;
+      font-weight: 400;
+      color: #999;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .brand-wordmark .wm-name {
+      font-size: .78rem;
+      font-weight: 700;
+      color: #666;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    /* Inline single-line wordmarks */
+    .brand-inline {
+      font-size: .9rem;
+      font-weight: 800;
+      color: #777;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .section-heading {
+      font-size: clamp(1.5rem, 2.8vw, 2rem);
+      font-weight: 800; line-height: 1.2;
+      letter-spacing: .3px; color: var(--purple-ft);
+      margin-bottom: .35rem;
+    }
+    .section-sub {
+      color: var(--gray); font-size: .82rem; line-height: 1.75;
+      padding-top: 0;
+    }
+
+    .services-top,
+    .portfolio-top,
+    .team-top {
+      row-gap: .5rem;
+    }
+
+    .services,
+    .about,
+    .portfolio,
+    .team,
+    .testimonials {
+      margin-left: var(--page-margin);
+      margin-right: var(--page-margin);
+    }
+
+    .services { padding: 5.5rem 5%; background: #fff; }
+    .services-top {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; align-items: start; margin-bottom: 3.5rem;
+    }
+    .services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2.5rem; }
+    .svc-icon {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.9rem; color: var(--purple);
+    }
+    .svc-card h3 { font-size: .9rem; font-weight: 700; margin-bottom: .5rem; color: var(--dark); }
+    .svc-card p  { font-size: .78rem; color: var(--gray); line-height: 1.7; }
+
+    .about {
+      padding: 5.5rem 5%; background: var(--light);
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center;
+    }
+    .about-img-wrap {
+      position: relative;
+      padding-top: 2.5rem;
+      padding-left: 2.5rem;
+    }
+    .about-img-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 65%; height: 72%;
+      border: 1.5px solid #c8c8dc;
+      background: transparent;
+      border-radius: 2px;
+      z-index: 0;
+    }
+    .about-img {
+      position: relative;
+      z-index: 1;
+      border-radius: 2px;
+      height: 360px;
+      overflow: hidden;
+    }
+    .about-img img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 2px;
+    }
+    .about-arrow {
+      position: absolute;
+      left: 12px; top: 50%; transform: translateY(-50%);
+      z-index: 2;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple-hero) 0%, var(--teal) 100%);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(94,196,192,.45);
+    }
+    .about-text h2 { margin-bottom: .8rem; color: var(--purple-hero); }
+    .about-text p  { font-size: .84rem; color: var(--gray); line-height: 1.8; margin-bottom: 2.2rem; }
+    .about-stats {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem;
+    }
+    .astat strong {
+      display: block; font-size: 1.8rem; font-weight: 800;
+      color: var(--teal); letter-spacing: -.5px;
+      margin-bottom: .2rem;
+    }
+    .astat span { font-size: .75rem; color: var(--gray); line-height: 1.5; }
+
+    .portfolio { padding: 5.5rem 5%; background: #fff; }
+    .portfolio-top {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; align-items: start; margin-bottom: 3rem;
+    }
+    .portfolio-top .section-heading { color: var(--purple-hero); }
+    .portfolio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .port-item {
+      position: relative;
+      border-radius: 4px;
+      overflow: visible;
+      aspect-ratio: 16/10;
+    }
+    .port-item img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 4px;
+      display: block;
+    }
+    .port-caption { margin-top: 2.2rem; }
+    .port-caption h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; color: var(--dark); }
+    .port-caption p  { font-size: .8rem; color: var(--gray); line-height: 1.7; }
+    .port-icon {
+      position: absolute;
+      bottom: -22px; left: 50%; transform: translateX(-50%);
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; z-index: 2;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18);
+    }
+    .port-icon.dark { background: var(--dark); color: #fff; }
+    .port-icon.red  { background: #e63030; color: #fff; }
+
+    .team { padding: 5.5rem 5%; background: var(--light); }
+    .team-top {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; align-items: start; margin-bottom: 2.5rem;
+    }
+    .team-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; }
+    .team-card {
+      border-radius: 4px; aspect-ratio: 3/4;
+      position: relative; overflow: hidden;
+    }
+    .team-card img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top center;
+    }
+    .team-card.featured { }
+    .team-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--purple); padding: .9rem 1rem;
+    }
+    .team-card.featured .team-info { background: rgba(0,0,0,.18); }
+    .team-info h4 { color: #fff; font-size: .82rem; font-weight: 700; margin-bottom: .1rem; }
+    .team-info span { color: rgba(255,255,255,.7); font-size: .68rem; }
+    .team-dots { display: flex; gap: .3rem; margin-top: .45rem; }
+    .team-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.35);
+    }
+    .team-dot.active { background: var(--teal); }
+    .carousel-dots {
+      display: flex; justify-content: center; gap: .4rem; margin-top: 2rem;
+    }
+    .cdot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; cursor: pointer; }
+    .cdot.active { background: var(--teal); width: 18px; border-radius: 4px; }
+
+    .testimonials { padding: 5.5rem 0; background: #fff; text-align: center; }
+    .testimonials-header { padding: 0 5%; margin-bottom: 3rem; }
+    .testimonials .section-heading { color: var(--purple); margin-bottom: .35rem; }
+    .testimonials .section-sub { max-width: 440px; margin: 0 auto; color: #555; font-size: .85rem; }
+
+    .testi-grid {
+      display: grid; grid-template-columns: 1fr 1px 1fr;
+      text-align: left; align-items: start;
+    }
+    .testi-divider { background: #e0e0e0; align-self: stretch; }
+    .testi-card { padding: 2rem 5%; background: #fff; }
+
+    .testi-top {
+      display: flex; align-items: flex-start; gap: 1.2rem; margin-bottom: 1.4rem;
+    }
+    .testi-avatar {
+      width: 100px; height: 100px; flex-shrink: 0;
+      border-radius: 4px; overflow: hidden;
+    }
+    .testi-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .testi-meta { padding-top: .1rem; }
+    .testi-card h4 { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: .35rem; }
+    .testi-card .role { font-size: .8rem; color: #555; margin-bottom: .55rem; }
+    .stars { display: flex; gap: .15rem; font-size: 1rem; }
+    .star-filled { color: #f4c030; }
+    .star-empty  { color: #ccc; }
+    .testi-card p { font-size: .82rem; color: #333; line-height: 1.75; }
+
+    .cta-wrapper {
+      position: relative;
+      z-index: 10;
+      padding: 0 var(--page-margin);
+      margin-bottom: -80px;
+    }
+    .cta-section {
+      background: var(--purple-cta);
+      border-radius: 12px;
+      padding: 5rem 5%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(107,84,192,.35);
+    }
+    .cta-section::after {
+      content: '';
+      position: absolute;
+      bottom: 22px; right: 28px;
+      width: 14px; height: 14px;
+      background: var(--teal);
+      transform: rotate(45deg);
+      border-radius: 2px;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+    }
+    .cta-section h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 800; color: #fff; margin-bottom: .5rem;
+    }
+    .cta-section p {
+      color: rgba(255,255,255,.65); font-size: .82rem;
+      margin-bottom: 2rem; line-height: 1.65;
+    }
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: .45rem;
+      border: 1.5px solid rgba(255,255,255,.6); color: #fff; background: transparent;
+      padding: .7rem 1.6rem; font-size: .72rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none;
+      cursor: pointer; transition: background .2s;
+    }
+    .btn-cta:hover { background: rgba(255,255,255,.12); }
+
+    footer {
+      background: var(--purple-ft);
+      padding: calc(80px + 4rem) 5% 1.8rem;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 2rem; margin-bottom: 2.5rem;
+    }
+    .footer-col h5 {
+      color: #fff; font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;
+    }
+    .footer-col p,
+    .footer-col a {
+      font-size: .75rem; color: rgba(255,255,255,.55);
+      text-decoration: none; display: block;
+      line-height: 1.6; margin-bottom: .35rem; transition: color .2s;
+    }
+    .footer-col a:hover { color: #fff; }
+    .footer-contact-item {
+      display: flex; align-items: flex-start; gap: .45rem;
+      font-size: .73rem; color: rgba(255,255,255,.55); margin-bottom: .45rem;
+    }
+    .footer-contact-item svg { flex-shrink: 0; margin-top: 1px; }
+    .footer-socials { display: flex; gap: .4rem; margin-top: .7rem; }
+    .fsoc {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6rem; color: rgba(255,255,255,.65); cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .fsoc:hover { border-color: #fff; color: #fff; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.1); padding-top: 1.4rem;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .6rem;
+    }
+    .footer-bottom p { font-size: .7rem; color: rgba(255,255,255,.35); }
+    .footer-bottom-links { display: flex; gap: 1.4rem; }
+    .footer-bottom-links a {
+      font-size: .7rem; color: rgba(255,255,255,.35);
+      text-decoration: none; transition: color .2s;
+    }
+    .footer-bottom-links a:hover { color: #fff; }
+
+    @media (max-width: 1024px) {
+      :root { --page-margin: 30px; }
+      .services-grid { grid-template-columns: repeat(2,1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .brands { gap: 2.5rem; }
+    }
+    @media (max-width: 768px) {
+      :root { --page-margin: 16px; }
+      nav { position: fixed; background: rgba(123,97,212,.97); backdrop-filter: blur(10px); padding: 1rem 5%; left: 0; right: 0; }
+      .hamburger { display: flex; }
+      .nav-links {
+        display: none; position: fixed; inset: 0;
+        background: rgba(123,97,212,.98);
+        flex-direction: column; align-items: center; justify-content: center;
+        gap: 2rem; z-index: 250;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { font-size: 1.1rem; }
+
+      .hero { min-height: auto; }
+      .hero-left { padding: 7rem 5% 14rem; }
+      .hero-right { position: absolute; width: 55%; right: 0; bottom: 0; }
+
+      .services-top, .portfolio-top, .team-top, .about { grid-template-columns: 1fr; gap: 1.5rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .testi-divider { display: none; }
+      .testi-card { border-bottom: 1px solid #e0e0e0; }
+      .testi-card:last-child { border-bottom: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+
+      .services, .portfolio, .team, .testimonials, .about { padding: 4rem 5%; }
+      .about-img { height: 260px; }
+
+      .brands { gap: 2rem; }
+      .brands-wrapper { padding: 1.5rem 5%; }
+
+      .cta-wrapper { margin-bottom: -60px; }
+      footer { padding-top: calc(60px + 3rem); }
+    }
+    @media (max-width: 480px) {
+      :root { --page-margin: 16px; }
+      .team-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .footer-bottom-links { justify-content: center; }
+      .cta-wrapper { margin-bottom: -50px; }
+      footer { padding-top: calc(50px + 3rem); }
+      .brands { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo">Creasio</span>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#contact">Contact Us</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-waves">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <path d="M900 0 Q1050 80 1100 220 Q1150 360 1280 390 Q1380 408 1440 350" fill="none" stroke="rgba(94,196,192,0.55)" stroke-width="2"/>
+      <path d="M960 0 Q1110 95 1160 240 Q1210 388 1330 420 Q1400 436 1440 390" fill="none" stroke="rgba(94,196,192,0.32)" stroke-width="1.5"/>
+      <path d="M1020 0 Q1170 108 1220 258 Q1268 412 1380 445" fill="none" stroke="rgba(94,196,192,0.18)" stroke-width="1.1"/>
+      <path d="M0 680 Q100 630 200 670 Q360 730 410 820 Q445 875 520 900" fill="none" stroke="rgba(94,196,192,0.5)" stroke-width="2"/>
+      <path d="M0 730 Q110 672 220 714 Q385 775 440 866 Q468 900 540 900" fill="none" stroke="rgba(94,196,192,0.3)" stroke-width="1.5"/>
+      <path d="M0 780 Q120 716 240 758 Q410 820 465 900" fill="none" stroke="rgba(94,196,192,0.16)" stroke-width="1.1"/>
+    </svg>
+  </div>
+
+  <div class="hero-left">
+    <h1>Grow your online business with our SEO Strategy.</h1>
+    <p>The monkey-rope is found in all whalers; but it was only in the Pequod that the monkey and his holder were ever tied together. This improvement upon the original.</p>
+    <a href="#contact" class="btn-outline">Get Started &nbsp;›</a>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-card">
+      <h3>Have a project in mind?</h3>
+      <p>Being the savage's bowsman, that is, the person who pulled the bow-oar in</p>
+    </div>
+  </div>
+</section>
+
+<!-- BRANDS -->
+<div class="brands-wrapper">
+  <div class="brands">
+
+    <!-- Brand 1: Circle icon + stacked text -->
+    <div class="brand-logo">
+      <div class="brand-mark">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="19" cy="19" r="18" stroke="#bbb" stroke-width="1.5"/>
+          <circle cx="19" cy="19" r="10" fill="#ccc"/>
+          <circle cx="19" cy="19" r="4" fill="#f4f4f8"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">
+        <span class="wm-top">Company</span>
+        <span class="wm-name">Text Logo</span>
+      </div>
+    </div>
+
+    <!-- Brand 2: Diamond/chevron icon + bold wordmark -->
+    <div class="brand-logo">
+      <div class="brand-mark">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="16,2 28,10 28,22 16,30 4,22 4,10" fill="none" stroke="#bbb" stroke-width="1.5"/>
+          <polygon points="16,8 24,13 24,19 16,24 8,19 8,13" fill="#ccc"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">
+        <span class="wm-name" style="font-size:.9rem; letter-spacing:2px;">COMPANY</span>
+        <span class="wm-top" style="letter-spacing:1.5px;">digital solutions</span>
+      </div>
+    </div>
+
+    <!-- Brand 3: Mountain/triangle icon + small text -->
+    <div class="brand-logo">
+      <div class="brand-mark">
+        <svg width="38" height="34" viewBox="0 0 38 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="19,2 37,33 1,33" fill="#c8c8c8"/>
+          <polygon points="19,10 30,33 8,33" fill="#aaa"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">
+        <span class="wm-top" style="letter-spacing:2px;">A</span>
+        <span class="wm-name">COMPANY</span>
+      </div>
+    </div>
+
+    <!-- Brand 4: Gear/cog inline with "TEXT LOGO" -->
+    <div class="brand-logo">
+      <div class="brand-mark">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="13" cy="13" r="5" fill="#bbb"/>
+          <circle cx="13" cy="13" r="11" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="4 2.5"/>
+        </svg>
+      </div>
+      <span class="brand-inline" style="font-size:.82rem; letter-spacing:2px;">TEXT &nbsp; LOGO</span>
+    </div>
+
+    <!-- Brand 5: Bold all-caps wordmark only -->
+    <div class="brand-logo">
+      <span class="brand-inline" style="font-size:1.05rem; font-weight:900; letter-spacing:3px; color:#aaa;">COMPANY</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="services-top">
+    <h2 class="section-heading">Our service we're<br>provide for you</h2>
+    <p class="section-sub">Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="svc-card">
+      <div class="svc-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <h3>SEO Marketing</h3>
+      <p>Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h3>Email Marketing</h3>
+      <p>Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <h3>Marketing Statics</h3>
+      <p>Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-img-wrap">
+    <div class="about-img">
+      <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80" alt="Team collaborating in a modern office"/>
+    </div>
+    <div class="about-arrow">‹</div>
+  </div>
+  <div class="about-text">
+    <h2 class="section-heading">Grow your digital<br>business</h2>
+    <p>The monkey-rope is found in all whalers; but it was only in the Pequod that the monkey and his holder were ever tied together. This improvement upon the origina.</p>
+    <div class="about-stats">
+      <div class="astat"><strong>6K</strong><span>Awesome<br>Projects.</span></div>
+      <div class="astat"><strong>10</strong><span>Years<br>Experienced.</span></div>
+      <div class="astat"><strong>70K</strong><span>Satisfied<br>Clients.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section class="portfolio" id="portfolio">
+  <div class="portfolio-top">
+    <h2 class="section-heading" style="color:var(--purple-hero);">Our Project we work<br>previously</h2>
+    <p class="section-sub">Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+  </div>
+  <div class="portfolio-grid">
+    <div>
+      <div class="port-item">
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=80" alt="Travel Agency project"/>
+        <div class="port-icon dark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="2" fill="#1c1c2e"/></svg>
+        </div>
+      </div>
+      <div class="port-caption">
+        <h4>Travel Agency</h4>
+        <p>Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+      </div>
+    </div>
+    <div>
+      <div class="port-item">
+        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=900&q=80" alt="Fast Food project"/>
+        <div class="port-icon red">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+        </div>
+      </div>
+      <div class="port-caption">
+        <h4>Fast Food</h4>
+        <p>Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team" id="team">
+  <div class="team-top">
+    <h2 class="section-heading">Our team will be<br>help your business</h2>
+    <p class="section-sub">Being the savage's bowsman, that is, the person who pulled the bow-oar in his boat (the second one from forwa.</p>
+  </div>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&q=80" alt="Team member"/>
+      <div class="team-info">
+        <h4>James Mitchell</h4>
+        <span>SEO Strategist</span>
+        <div class="team-dots">
+          <div class="team-dot active"></div>
+          <div class="team-dot"></div>
+          <div class="team-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="team-card featured">
+      <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=80" alt="Sarah Weber"/>
+      <div class="team-info">
+        <h4>Sarah Weber</h4>
+        <span>Digital Marketing Expert</span>
+        <div class="team-dots">
+          <div class="team-dot active"></div>
+          <div class="team-dot"></div>
+          <div class="team-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="team-card">
+      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80" alt="Team member"/>
+      <div class="team-info">
+        <h4>David Chen</h4>
+        <span>Content Strategist</span>
+        <div class="team-dots">
+          <div class="team-dot active"></div>
+          <div class="team-dot"></div>
+          <div class="team-dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="carousel-dots">
+    <div class="cdot active"></div>
+    <div class="cdot"></div>
+    <div class="cdot"></div>
+    <div class="cdot"></div>
+    <div class="cdot"></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="testimonials-header">
+    <h2 class="section-heading">What our client say<br>about us</h2>
+    <p class="section-sub">The monkey-rope is found in all whalers; but it was only in the Pequod that the monkey and his holder were ev.</p>
+  </div>
+
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-top">
+        <div class="testi-avatar">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80" alt="Larry Garcia"/>
+        </div>
+        <div class="testi-meta">
+          <h4>Larry Garcia</h4>
+          <div class="role">Manager PT. Rumah Kita</div>
+          <div class="stars">
+            <span class="star-filled">★</span><span class="star-filled">★</span>
+            <span class="star-filled">★</span><span class="star-filled">★</span>
+            <span class="star-empty">★</span>
+          </div>
+        </div>
+      </div>
+      <p>It was a humorously perilous business for both of us. For, before we proceed further, it must be said that the monkey-rope was fast at both ends; fast to Queequeg's broad canvas belt, and fast to my narrow leather one..</p>
+    </div>
+
+    <div class="testi-divider"></div>
+
+    <div class="testi-card">
+      <div class="testi-top">
+        <div class="testi-avatar">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80" alt="Ronald Franklin"/>
+        </div>
+        <div class="testi-meta">
+          <h4>Ronald Franklin</h4>
+          <div class="role">Founder Rumah Belajar</div>
+          <div class="stars">
+            <span class="star-filled">★</span><span class="star-filled">★</span>
+            <span class="star-filled">★</span><span class="star-filled">★</span>
+            <span class="star-empty">★</span>
+          </div>
+        </div>
+      </div>
+      <p>The monkey-rope is found in all whalers; but it was only in the Pequod that the monkey and his holder were ever tied together. This improvement upon the original usage was introduced by no less a man than Stubb, in ord.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-wrapper" id="contact">
+  <section class="cta-section">
+    <h2>Lets talk about<br>your project</h2>
+    <p>The monkey-rope is found in all whalers; but it was only in<br>the Pequod that the monkey and his holder were ev.</p>
+    <a href="#" class="btn-cta">Contact Us &nbsp;›</a>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h5>Phone</h5>
+      <div class="footer-contact-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.37 2 2 0 0 1 3.58 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.06 6.06l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        +1 808-779-9013
+      </div>
+      <h5 style="margin-top:1.4rem;">Address</h5>
+      <div class="footer-contact-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        425-C Maluniu Ave, Kailua, HI 96734
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h5>Services</h5>
+      <a href="#">Digital Marketing</a>
+      <a href="#">Content Strategy</a>
+      <a href="#">SEO</a>
+      <a href="#">Marketing Consultant</a>
+    </div>
+
+    <div class="footer-col">
+      <h5>Help and Advice</h5>
+      <a href="#">How it works</a>
+      <a href="#">Contact support</a>
+      <a href="#">Privacy Policy</a>
+      <br>
+      <h5 style="margin-top:.6rem;">Company</h5>
+      <a href="#">Blog</a>
+      <a href="#">Pricing</a>
+      <a href="#">Our Team</a>
+    </div>
+
+    <div class="footer-col">
+      <h5>Get in touch</h5>
+      <p>Feel free to get in touch with us via email</p>
+      <a href="mailto:hello@hellow.com">hello@hellow.com</a>
+      <div class="footer-socials">
+        <div class="fsoc">f</div>
+        <div class="fsoc">t</div>
+        <div class="fsoc">in</div>
+        <div class="fsoc">yt</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>Copyright © 2020 Hellow | all right reserved</p>
+    <div class="footer-bottom-links">
+      <a href="#">Terms Of Services</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const btn  = document.getElementById('hamburger');
+  const menu = document.getElementById('nav-links');
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('open');
+    menu.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    btn.classList.remove('open');
+    menu.classList.remove('open');
+    document.body.style.overflow = '';
+  }));
+</script>
+</body>
+</html>
