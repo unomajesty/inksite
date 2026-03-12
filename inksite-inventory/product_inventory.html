@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1a56db;
+      --blue-light: #e8f0fe;
+      --blue-mid: #93b8f8;
+      --blue-dark: #0f3b9c;
+      --white: #ffffff;
+      --line: #d0e0ff;
+      --text: #0d1f4a;
+      --muted: #6b8acd;
+      --danger: #c0392b;
+      --danger-light: #fff0f0;
+      --green: #0e7a45;
+      --green-light: #e6f4ed;
+      --amber: #92550a;
+      --amber-light: #fef3e2;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f0f5ff;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 20px;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1240px;
+      margin: 0 auto 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .page-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .tab-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active { background: var(--blue); color: var(--white); }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 20px;
+      align-items: start;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* ── FORM PANEL ── */
+    .form-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 16px rgba(26,86,219,0.06);
+      position: sticky;
+      top: 20px;
+    }
+
+    .form-panel.edit-mode {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+    }
+
+    .panel-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .form-panel.edit-mode .panel-title { color: var(--blue); }
+
+    .form-grid { display: flex; flex-direction: column; gap: 10px; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+
+    .field label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field input, .field select {
+      background: #f4f8ff;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 9px 11px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+
+    .field input:focus, .field select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+      background: var(--white);
+    }
+
+    .field input::placeholder { color: var(--blue-mid); }
+    .field input:read-only { background: #eef4ff; color: var(--muted); cursor: default; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* size x connector */
+    .size-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 6px;
+      align-items: end;
+    }
+
+    .x-sep {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--blue-mid);
+      padding-bottom: 10px;
+      text-align: center;
+    }
+
+    /* computed display */
+    .computed-box {
+      background: var(--blue-light);
+      border: 1px solid var(--blue-mid);
+      border-radius: 7px;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .computed-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .computed-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--blue-dark);
+    }
+
+    /* type badge */
+    .type-badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .type-badge.tarpaulin { background: var(--amber-light); color: var(--amber); border: 1px solid #f0c98a; }
+    .type-badge.general   { background: var(--blue-light);  color: var(--blue);  border: 1px solid var(--blue-mid); }
+
+    /* section separator */
+    .section-divider {
+      border: none;
+      border-top: 1px dashed var(--line);
+      margin: 4px 0;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+      margin-bottom: -2px;
+    }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+
+    .btn-primary {
+      flex: 1;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: 7px;
+      padding: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-primary:hover { background: var(--blue-dark); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-cancel {
+      background: #f0f5ff;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: none;
+    }
+
+    .btn-cancel:hover { background: var(--blue-light); }
+
+    .err-msg {
+      color: var(--danger);
+      font-size: 10px;
+      display: none;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── USE SQFT PANEL ── */
+    .use-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 16px rgba(26,86,219,0.06);
+      position: sticky;
+      top: 20px;
+      display: none;
+    }
+
+    .use-panel.visible { display: block; }
+
+    .use-panel .panel-title { color: var(--amber); }
+
+    /* ── TABLE PANEL ── */
+    .table-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(26,86,219,0.06);
+    }
+
+    .table-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .table-meta .panel-title { margin: 0; }
+    .count { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+    .count span { color: var(--blue); font-weight: 500; }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead th {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 12px;
+      text-align: left;
+      background: #f7f9ff;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    thead th:last-child { text-align: center; }
+
+    tbody tr { border-bottom: 1px solid #eaf0fc; transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f4f8ff; }
+    tbody tr.editing-row { background: #eef4ff; }
+    tbody tr.low-stock td.td-sqft { color: var(--danger); }
+
+    tbody td { padding: 10px 12px; font-size: 12px; color: var(--text); white-space: nowrap; }
+
+    .td-num  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+    .td-name { font-weight: 500; }
+    .td-size { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+    .td-price { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--blue-dark); }
+    .td-date  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+    .td-sqft  { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; }
+
+    .qty-badge {
+      display: inline-block;
+      background: var(--blue-light);
+      color: var(--blue);
+      border-radius: 20px;
+      padding: 2px 9px;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .sqft-bar-wrap {
+      width: 70px;
+      height: 5px;
+      background: var(--line);
+      border-radius: 99px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    .sqft-bar {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--blue);
+      transition: width 0.3s;
+    }
+
+    .sqft-bar.low { background: var(--danger); }
+
+    .td-action { text-align: center; }
+    .action-btns { display: flex; gap: 4px; justify-content: center; }
+
+    .btn-edit {
+      background: var(--blue-light);
+      border: 1px solid var(--blue-mid);
+      color: var(--blue-dark);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-edit:hover { background: #c8dcff; }
+
+    .btn-use {
+      background: var(--amber-light);
+      border: 1px solid #f0c98a;
+      color: var(--amber);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-use:hover { background: #fde7b8; }
+
+    .btn-del {
+      background: none;
+      border: 1px solid #fdd;
+      color: var(--danger);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-del:hover { background: var(--danger-light); }
+
+    .btn-export, .topbar-export {
+      background: var(--blue-light);
+      border: 1px solid var(--blue-mid);
+      color: var(--blue-dark);
+      border-radius: 5px;
+      padding: 8px 16px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .topbar-export {
+      padding: 10px 18px;
+      font-size: 12px;
+    }
+    .btn-export:hover { background: var(--blue); color: var(--white); }
+
+    /* ── EMPTY ── */
+    .empty { text-align: center; padding: 48px 24px; color: var(--blue-mid); }
+    .empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.4; }
+    .empty p { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; }
+
+    /* ── TOTALS ── */
+    .totals {
+      border-top: 1px solid var(--line);
+      padding: 11px 18px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 24px;
+      background: #f7f9ff;
+    }
+
+    .total-item { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .total-item .tl { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    .total-item .tv { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--blue-dark); }
+
+    /* ── HISTORY VIEW ── */
+    .history-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(26,86,219,0.06);
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f9ff;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .history-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .filter-select {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 10px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .history-list { max-height: 520px; overflow-y: auto; }
+
+    .history-entry {
+      display: grid;
+      grid-template-columns: 8px 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 13px 18px;
+      border-bottom: 1px solid #eaf0fc;
+      transition: background 0.12s;
+    }
+    .history-entry:last-child { border-bottom: none; }
+    .history-entry:hover { background: #f7f9ff; }
+
+    .h-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .h-dot.added      { background: var(--green); }
+    .h-dot.edited     { background: var(--blue); }
+    .h-dot.deleted    { background: var(--danger); }
+    .h-dot.used       { background: var(--amber); }
+    .h-dot.size-edited { background: #8b5cf6; }
+    .h-dot.removed    { background: #dc6b19; }
+
+    .tag-size-edited { color: #8b5cf6; font-weight: 600; }
+    .tag-removed     { color: #dc6b19; font-weight: 600; }
+
+    .h-body { display: flex; flex-direction: column; gap: 3px; }
+
+    .h-action { font-size: 12px; font-weight: 500; color: var(--text); }
+    .h-detail { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); line-height: 1.6; }
+    .h-changes { font-family: 'DM Mono', monospace; font-size: 10px; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
+
+    .change-pill {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .use-pill {
+      background: var(--amber-light);
+      color: var(--amber);
+      border: 1px solid #f0c98a;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 9px;
+    }
+
+    .remove-pill {
+      background: #fff0e6;
+      color: #dc6b19;
+      border: 1px solid #f9c49a;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 9px;
+    }
+
+    .size-pill {
+      background: #f3eeff;
+      color: #8b5cf6;
+      border: 1px solid #d4c0ff;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .h-time { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--blue-mid); text-align: right; white-space: nowrap; margin-top: 3px; }
+
+    .tag-added   { color: var(--green);  font-weight: 600; }
+    .tag-edited  { color: var(--blue);   font-weight: 600; }
+    .tag-deleted { color: var(--danger); font-weight: 600; }
+    .tag-used    { color: var(--amber);  font-weight: 600; }
+
+    .history-empty { text-align: center; padding: 36px 24px; color: var(--blue-mid); font-family: 'DM Mono', monospace; font-size: 11px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,24,60,0.35);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      display: none;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 28px 28px 24px;
+      width: 340px;
+      box-shadow: 0 8px 40px rgba(10,24,60,0.18);
+    }
+
+    .modal-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 16px;
+    }
+
+    .modal-info {
+      background: var(--amber-light);
+      border: 1px solid #f0c98a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
+
+    .modal-info p {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--amber);
+      line-height: 1.7;
+    }
+
+    .modal-info strong { color: var(--text); }
+
+    .modal .field { margin-bottom: 10px; }
+
+    .modal-btns { display: flex; gap: 8px; margin-top: 16px; }
+
+    .btn-confirm {
+      flex: 1;
+      background: var(--amber);
+      color: var(--white);
+      border: none;
+      border-radius: 7px;
+      padding: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-confirm:hover { opacity: 0.88; }
+
+    .btn-modal-cancel {
+      background: #f0f5ff;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .modal-err { color: var(--danger); font-size: 10px; font-family: 'DM Mono', monospace; display: none; margin-top: 4px; }
+
+    .view-hidden { display: none !important; }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .form-panel, .use-panel { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <p class="page-title">Inventory Manager</p>
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-inv"  onclick="switchTab('inventory')">Inventory</button>
+      <button class="tab-btn"        id="tab-hist" onclick="switchTab('history')">History</button>
+    </div>
+    <button class="btn-export topbar-export" onclick="exportCsv()" title="Download inventory as CSV">📊 CSV Export</button>
+  </div>
+
+  <!-- ══ INVENTORY VIEW ══ -->
+  <div id="view-inventory">
+    <div class="layout">
+
+      <!-- LEFT PANEL: FORM + USE SQFT -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- ADD / EDIT FORM -->
+        <div class="form-panel" id="form-panel">
+          <p class="panel-title" id="form-title">Add Product</p>
+          <div class="form-grid">
+
+            <div class="field">
+              <label>Staff Name</label>
+              <input type="text" id="inp-staff" placeholder=""/>
+            </div>
+
+            <div class="field">
+              <label>Product Type</label>
+              <select id="inp-type" onchange="onTypeChange()">
+                <option value="general">General</option>
+                <option value="tarpaulin">Tarpaulin</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Product Name</label>
+              <input type="text" id="inp-name" placeholder="e.g. Glossy Sticker"/>
+            </div>
+
+            <!-- General size -->
+            <div class="field" id="size-general">
+              <label>Size</label>
+              <input type="text" id="inp-size-gen" placeholder="e.g. A4, 1.5 ft / 457 mm"/>
+            </div>
+
+            <!-- Tarpaulin size -->
+            <div id="size-tarp" class="view-hidden">
+              <p class="section-label">Size (ft × ft)</p>
+              <div class="size-row" style="margin-top:5px;">
+                <div class="field">
+                  <label>Width (ft)</label>
+                  <input type="number" id="inp-w" placeholder="6.2" min="0" step="0.1" oninput="calcSqft()"/>
+                </div>
+                <div class="x-sep">×</div>
+                <div class="field">
+                  <label>Length (ft)</label>
+                  <input type="number" id="inp-l" placeholder="164" min="0" step="0.1" oninput="calcSqft()"/>
+                </div>
+              </div>
+              <div class="computed-box" style="margin-top:8px;">
+                <span class="computed-label">Total sqft</span>
+                <span class="computed-value" id="computed-sqft">—</span>
+              </div>
+            </div>
+
+            <hr class="section-divider"/>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Price</label>
+                <input type="number" id="inp-price" placeholder="0.00" min="0" step="0.01"/>
+              </div>
+              <div class="field">
+                <label>Price Date</label>
+                <input type="date" id="inp-date-price"/>
+              </div>
+            </div>
+
+            <!-- General qty -->
+            <div class="field-row" id="qty-general">
+              <div class="field">
+                <label>Quantity</label>
+                <input type="number" id="inp-qty-gen" placeholder="0" min="0"/>
+              </div>
+              <div class="field">
+                <label>Qty Date</label>
+                <input type="date" id="inp-date-qty"/>
+              </div>
+            </div>
+
+            <!-- Tarpaulin qty: auto from sqft -->
+            <div id="qty-tarp" class="view-hidden">
+              <div class="field-row">
+                <div class="field">
+                  <label>Rolls / Pcs</label>
+                  <input type="number" id="inp-rolls" placeholder="1" min="1" step="1" value="1" oninput="calcSqft()"/>
+                </div>
+                <div class="field">
+                  <label>Qty Date</label>
+                  <input type="date" id="inp-date-qty-tarp"/>
+                </div>
+              </div>
+              <div class="computed-box" style="margin-top:6px;">
+                <span class="computed-label">Total sqft in stock</span>
+                <span class="computed-value" id="computed-total-sqft">—</span>
+              </div>
+            </div>
+
+            <p class="err-msg" id="err-msg">Please fill in all fields.</p>
+
+            <div class="btn-row">
+              <button class="btn-primary" id="btn-submit" onclick="submitForm()">+ Add Product</button>
+              <button class="btn-cancel" id="btn-cancel" onclick="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- USE SQFT PANEL (tarpaulin only) -->
+
+        <!-- REMOVE SQFT / FT PANEL -->
+
+      </div><!-- end left col -->
+
+      <!-- RIGHT: TABLE -->
+      <div class="table-panel">
+        <div class="table-meta">
+<p class="panel-title">Products</p>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <p class="count">Total: <span id="item-count">0</span></p>
+            <button class="btn-export" onclick="exportCsv()" title="Download inventory as CSV">📊 CSV</button>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <div class="empty" id="empty-state">
+            <div class="empty-icon">◻</div>
+            <p>No products yet — add one on the left</p>
+          </div>
+          <table id="inv-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Product</th>
+                <th>W (ft)</th>
+                <th>H (ft)</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Price Date</th>
+                <th>Qty / Stock</th>
+                <th>Qty Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="inv-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="totals" id="totals-row" style="display:none;">
+          <div class="total-item">
+            <span class="tl">Total Units</span>
+            <span class="tv" id="total-units">0</span>
+          </div>
+          <div class="total-item">
+            <span class="tl">Total Value</span>
+            <span class="tv" id="total-value">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ HISTORY VIEW ══ -->
+  <div id="view-history" class="view-hidden">
+    <div class="history-panel">
+      <div class="history-meta">
+        <p class="panel-title" style="margin:0;">Change Log</p>
+        <div class="history-filters">
+          <select class="filter-select" id="hist-filter" onchange="renderHistory()">
+            <option value="all">All Actions</option>
+            <option value="added">Added</option>
+            <option value="edited">Edited</option>
+            <option value="size-edited">Size Edited</option>
+            <option value="used">Sqft Used</option>
+            <option value="removed">Sqft/Ft Removed</option>
+            <option value="deleted">Deleted</option>
+          </select>
+          <select class="filter-select" id="hist-staff-filter" onchange="renderHistory()">
+            <option value="all">All Staff</option>
+          </select>
+          <select class="filter-select" id="hist-type-filter" onchange="renderHistory()">
+            <option value="all">All Types</option>
+            <option value="general">General</option>
+            <option value="tarpaulin">Tarpaulin</option>
+          </select>
+        </div>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="history-empty">No history yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let items   = [];
+    let history = [];
+    let nextId  = 1;
+    let editingId = null;
+
+    /* ── utils ─────────────────────────────── */
+    function fmtDate(d) {
+      if (!d) return '—';
+      const [y,m,day] = d.split('-');
+      return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1] + ' ' + +day + ', ' + y;
+    }
+
+    function nowStamp() {
+      const n = new Date(), p = v => String(v).padStart(2,'0');
+      const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][n.getMonth()];
+      return `${mo} ${n.getDate()}, ${n.getFullYear()} ${p(n.getHours())}:${p(n.getMinutes())}`;
+    }
+
+    /* ── type toggle ────────────────────────── */
+    function onTypeChange() {
+      const type = document.getElementById('inp-type').value;
+      const isTarp = type === 'tarpaulin';
+      document.getElementById('size-general').classList.toggle('view-hidden', isTarp);
+      document.getElementById('size-tarp').classList.toggle('view-hidden', !isTarp);
+      document.getElementById('qty-general').classList.toggle('view-hidden', isTarp);
+      document.getElementById('qty-tarp').classList.toggle('view-hidden', !isTarp);
+      calcSqft();
+    }
+
+    function calcSqft() {
+      const w = parseFloat(document.getElementById('inp-w').value) || 0;
+      const l = parseFloat(document.getElementById('inp-l').value) || 0;
+      const rolls = parseInt(document.getElementById('inp-rolls').value) || 1;
+      const sqft = w * l;
+      const total = sqft * rolls;
+      document.getElementById('computed-sqft').textContent = sqft > 0 ? sqft.toFixed(2) + ' sqft' : '—';
+      document.getElementById('computed-total-sqft').textContent = total > 0 ? total.toFixed(2) + ' sqft' : '—';
+    }
+
+    /* ── form read ──────────────────────────── */
+    function getFields() {
+      const type = document.getElementById('inp-type').value;
+      const isTarp = type === 'tarpaulin';
+      const w     = parseFloat(document.getElementById('inp-w').value)       || 0;
+      const l     = parseFloat(document.getElementById('inp-l').value)       || 0;
+      const rolls = parseInt(document.getElementById('inp-rolls').value)     || 1;
+      return {
+        staff:      document.getElementById('inp-staff').value.trim(),
+        type,
+        name:       document.getElementById('inp-name').value.trim(),
+        size:       isTarp ? `${w} ft × ${l} ft` : document.getElementById('inp-size-gen').value.trim(),
+        widthFt:    isTarp ? w : null,
+        lengthFt:   isTarp ? l : null,
+        rolls:      isTarp ? rolls : null,
+        sqftTotal:  isTarp ? parseFloat((w * l * rolls).toFixed(2)) : null,
+        sqftUsed:   isTarp ? 0 : null,
+        price:      parseFloat(document.getElementById('inp-price').value),
+        qty:        isTarp ? rolls : parseInt(document.getElementById('inp-qty-gen').value),
+        datePrice:  document.getElementById('inp-date-price').value,
+        dateQty:    isTarp
+          ? document.getElementById('inp-date-qty-tarp').value
+          : document.getElementById('inp-date-qty').value,
+      };
+    }
+
+    function clearFields() {
+      ['inp-staff','inp-name','inp-size-gen','inp-price','inp-qty-gen',
+       'inp-date-price','inp-date-qty','inp-w','inp-l','inp-date-qty-tarp']
+        .forEach(id => document.getElementById(id).value = '');
+      document.getElementById('inp-rolls').value = '1';
+      document.getElementById('inp-type').value = 'general';
+      document.getElementById('computed-sqft').textContent = '—';
+      document.getElementById('computed-total-sqft').textContent = '—';
+      document.getElementById('err-msg').style.display = 'none';
+      onTypeChange();
+    }
+
+    /* ── diff ───────────────────────────────── */
+    function diffFields(a, b) {
+      const keys = { name:'Name', size:'Size', price:'Price', qty:'Qty', sqftTotal:'Total Sqft', datePrice:'Price Date', dateQty:'Qty Date' };
+      return Object.keys(keys).reduce((acc, k) => {
+        const av = k === 'price' ? Number(a[k]).toFixed(2) : String(a[k]);
+        const bv = k === 'price' ? Number(b[k]).toFixed(2) : String(b[k]);
+        if (av !== bv) acc.push({ field: keys[k], from: av, to: bv });
+        return acc;
+      }, []);
+    }
+
+    /* ── history ─────────────────────────────── */
+    function logHistory(action, item, changes, staff, extra) {
+      history.unshift({ action, item: { ...item }, changes: changes || [], staff: staff || 'Unknown', time: nowStamp(), extra: extra || null });
+      updateStaffFilter();
+    }
+
+    function updateStaffFilter() {
+      const sel = document.getElementById('hist-staff-filter');
+      const cur = sel.value;
+      const staffSet = [...new Set(history.map(h => h.staff))].sort();
+      sel.innerHTML = `<option value="all">All Staff</option>` +
+        staffSet.map(s => `<option value="${s}" ${s===cur?'selected':''}>${s}</option>`).join('');
+    }
+
+    /* ── submit ─────────────────────────────── */
+    function submitForm() {
+      const f = getFields();
+      const isTarp = f.type === 'tarpaulin';
+      const valid = f.staff && f.name && f.price > 0 && f.datePrice && f.dateQty &&
+        (isTarp ? (f.widthFt > 0 && f.lengthFt > 0) : (f.size && f.qty >= 0));
+      if (!valid) { document.getElementById('err-msg').style.display = 'block'; return; }
+      document.getElementById('err-msg').style.display = 'none';
+
+      if (editingId !== null) {
+        const idx = items.findIndex(i => i.id === editingId);
+        if (idx !== -1) {
+          const before = items[idx];
+          // preserve sqftUsed
+          if (isTarp) f.sqftUsed = before.sqftUsed || 0;
+          const changes = diffFields(before, f);
+          items[idx] = { id: editingId, ...f };
+          logHistory('edited', items[idx], changes, f.staff);
+        }
+        editingId = null;
+        setFormMode('add');
+      } else {
+        const newItem = { id: nextId++, ...f };
+        items.push(newItem);
+        logHistory('added', newItem, [], f.staff);
+      }
+
+      clearFields();
+      render();
+      refreshUsePanel();
+      renderHistory();
+    }
+
+    /* ── edit ────────────────────────────────── */
+    function editItem(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+      editingId = id;
+      document.getElementById('inp-staff').value = '';
+      document.getElementById('inp-type').value  = it.type;
+      document.getElementById('inp-name').value  = it.name;
+      document.getElementById('inp-price').value = it.price;
+      document.getElementById('inp-date-price').value = it.datePrice;
+      onTypeChange();
+
+      if (it.type === 'tarpaulin') {
+        document.getElementById('inp-w').value    = it.widthFt;
+        document.getElementById('inp-l').value    = it.lengthFt;
+        document.getElementById('inp-rolls').value = it.rolls;
+        document.getElementById('inp-date-qty-tarp').value = it.dateQty;
+        calcSqft();
+      } else {
+        document.getElementById('inp-size-gen').value = it.size;
+        document.getElementById('inp-qty-gen').value  = it.qty;
+        document.getElementById('inp-date-qty').value = it.dateQty;
+      }
+
+      setFormMode('edit');
+      document.getElementById('inp-staff').focus();
+      render();
+    }
+
+    function cancelEdit() {
+      editingId = null;
+      clearFields();
+      setFormMode('add');
+      render();
+    }
+
+    function setFormMode(mode) {
+      const title  = document.getElementById('form-title');
+      const btn    = document.getElementById('btn-submit');
+      const cancel = document.getElementById('btn-cancel');
+      const panel  = document.getElementById('form-panel');
+      if (mode === 'edit') {
+        title.textContent = 'Edit Product';
+        btn.textContent   = '✓ Save Changes';
+        cancel.style.display = 'block';
+        panel.classList.add('edit-mode');
+      } else {
+        title.textContent = 'Add Product';
+        btn.textContent   = '+ Add Product';
+        cancel.style.display = 'none';
+        panel.classList.remove('edit-mode');
+      }
+    }
+
+    /* ── delete ──────────────────────────────── */
+    function removeItem(id) {
+      const it = items.find(i => i.id === id);
+      const staff = prompt('Enter your staff name to confirm deletion:');
+      if (!staff || !staff.trim()) return;
+      if (editingId === id) cancelEdit();
+      items = items.filter(i => i.id !== id);
+      logHistory('deleted', it, [], staff.trim());
+      render();
+      refreshUsePanel();
+      renderHistory();
+    }
+
+    /* ── MODAL helpers ───────────────────────── */
+    let activeUseId = null;
+    let activeRemId = null;
+
+    function refreshUsePanel() { /* no-op: panels are now modals */ }
+
+    function openModal(type, id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+      if (type === 'use') {
+        activeUseId = id;
+        const avail = (it.sqftTotal - it.sqftUsed).toFixed(2);
+        document.getElementById('use-avail').textContent = avail + ' sqft';
+        document.getElementById('use-staff').value = '';
+        document.getElementById('use-sqft').value  = '';
+        document.getElementById('use-note').value  = '';
+        document.getElementById('use-err').style.display = 'none';
+        document.getElementById('use-modal-overlay').classList.add('open');
+        setTimeout(() => document.getElementById('use-staff').focus(), 80);
+      } else {
+        activeRemId = id;
+        document.getElementById('rem-cur-size').textContent  = it.size;
+        document.getElementById('rem-cur-sqft').textContent  = it.sqftTotal.toFixed(2) + ' sqft';
+        document.getElementById('rem-cur-avail').textContent = (it.sqftTotal - it.sqftUsed).toFixed(2) + ' sqft';
+        document.getElementById('rem-staff').value  = '';
+        document.getElementById('rem-sqft').value   = '';
+        document.getElementById('rem-w').value      = '';
+        document.getElementById('rem-l').value      = '';
+        document.getElementById('rem-reason').value = '';
+        document.getElementById('rem-new-sqft').textContent = '—';
+        document.getElementById('rem-mode').value   = 'sqft';
+        document.getElementById('rem-err').style.display = 'none';
+        onRemModeChange();
+        document.getElementById('rem-modal-overlay').classList.add('open');
+        setTimeout(() => document.getElementById('rem-staff').focus(), 80);
+      }
+    }
+
+    function closeModal(type) {
+      if (type === 'use') {
+        document.getElementById('use-modal-overlay').classList.remove('open');
+        activeUseId = null;
+      } else {
+        document.getElementById('rem-modal-overlay').classList.remove('open');
+        activeRemId = null;
+      }
+    }
+
+    function useSqft() {
+      const staff = document.getElementById('use-staff').value.trim();
+      const sqft  = parseFloat(document.getElementById('use-sqft').value);
+      const note  = document.getElementById('use-note').value.trim();
+      const errEl = document.getElementById('use-err');
+      const it    = items.find(i => i.id === activeUseId);
+
+      if (!staff || !it || isNaN(sqft) || sqft <= 0) { errEl.style.display='block'; errEl.textContent='Check fields.'; return; }
+      const avail = it.sqftTotal - it.sqftUsed;
+      if (sqft > avail) { errEl.textContent = `Not enough stock. Available: ${avail.toFixed(2)} sqft.`; errEl.style.display='block'; return; }
+      errEl.style.display = 'none';
+
+      it.sqftUsed = parseFloat((it.sqftUsed + sqft).toFixed(2));
+      logHistory('used', it, [], staff, { sqftUsed: sqft, note, remaining: parseFloat((it.sqftTotal - it.sqftUsed).toFixed(2)) });
+
+      closeModal('use');
+      render();
+      renderHistory();
+    }
+
+    /* ── render inventory ────────────────────── */
+    function render() {
+      const tbody  = document.getElementById('inv-tbody');
+      const table  = document.getElementById('inv-table');
+      const empty  = document.getElementById('empty-state');
+      const totals = document.getElementById('totals-row');
+
+      document.getElementById('item-count').textContent = items.length;
+
+      if (items.length === 0) {
+        table.style.display = 'none';
+        empty.style.display = 'block';
+        totals.style.display = 'none';
+        return;
+      }
+
+      empty.style.display = 'none';
+      table.style.display = 'table';
+      totals.style.display = 'flex';
+
+      tbody.innerHTML = items.map((it, idx) => {
+        const isTarp = it.type === 'tarpaulin';
+        const avail  = isTarp ? (it.sqftTotal - it.sqftUsed) : null;
+        const pct    = isTarp ? Math.max(0, Math.min(100, (avail / it.sqftTotal) * 100)) : 0;
+        const isLow  = isTarp && pct < 20;
+
+        const stockCell = isTarp
+          ? `<td class="td-sqft ${isLow ? 'low-stock' : ''}">
+               ${avail.toFixed(2)} sqft
+               <span class="sqft-bar-wrap"><span class="sqft-bar ${isLow?'low':''}" style="width:${pct}%"></span></span>
+             </td>`
+          : `<td><span class="qty-badge">${it.qty}</span></td>`;
+
+        const typeBadge = `<span class="type-badge ${it.type}">${it.type === 'tarpaulin' ? 'Tarp' : 'General'}</span>`;
+
+        const useBtn = isTarp
+          ? `<button class="btn-use" onclick="focusUse(${it.id})">use</button>
+             <button class="btn-use" style="background:#fff0e6;border-color:#f9c49a;color:#dc6b19;" onclick="focusRemove(${it.id})">remove</button>` : '';
+
+        return `
+          <tr class="${editingId === it.id ? 'editing-row' : ''}">
+            <td class="td-num">${String(idx+1).padStart(2,'0')}</td>
+            <td>${typeBadge}</td>
+            <td class="td-name">${it.name}</td>
+            <td class="td-size">${isTarp ? it.widthFt : '—'}</td>
+            <td class="td-size">${isTarp ? it.lengthFt : '—'}</td>
+            <td class="td-size">${isTarp ? '' : it.size}</td>
+            <td class="td-price">₱${it.price.toFixed(2)}</td>
+            <td class="td-date">${fmtDate(it.datePrice)}</td>
+            ${stockCell}
+            <td class="td-date">${fmtDate(it.dateQty)}</td>
+            <td class="td-action">
+              <div class="action-btns">
+                <button class="btn-edit" onclick="editItem(${it.id})">edit</button>
+                ${useBtn}
+                <button class="btn-del" onclick="removeItem(${it.id})">del</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+
+      const generalItems = items.filter(i => i.type !== 'tarpaulin');
+      const totalUnits = generalItems.reduce((s,i) => s + i.qty, 0);
+      const totalValue = generalItems.reduce((s,i) => s + i.price * i.qty, 0);
+      document.getElementById('total-units').textContent = totalUnits;
+      document.getElementById('total-value').textContent = '₱' + totalValue.toFixed(2);
+    }
+
+    function focusUse(id)    { openModal('use', id); }
+    function focusRemove(id) { openModal('rem', id); }
+    function onRemSelectChange() { /* no-op: replaced by openModal */ }
+
+    function onRemModeChange() {
+      const mode = document.getElementById('rem-mode').value;
+      document.getElementById('rem-sqft-fields').style.display = mode === 'sqft' ? 'block' : 'none';
+      document.getElementById('rem-ft-fields').style.display   = mode === 'ft'   ? 'block' : 'none';
+    }
+
+    function calcRemSqft() {
+      const it = items.find(i => i.id === activeRemId);
+      const rolls = it ? it.rolls : 1;
+      const w = parseFloat(document.getElementById('rem-w').value) || 0;
+      const l = parseFloat(document.getElementById('rem-l').value) || 0;
+      const newTotal = parseFloat((w * l * rolls).toFixed(2));
+      document.getElementById('rem-new-sqft').textContent = newTotal > 0 ? newTotal.toFixed(2) + ' sqft' : '—';
+    }
+
+    function removeSqftOrFt() {
+      const staff  = document.getElementById('rem-staff').value.trim();
+      const mode   = document.getElementById('rem-mode').value;
+      const reason = document.getElementById('rem-reason').value.trim();
+      const errEl  = document.getElementById('rem-err');
+      const it     = items.find(i => i.id === activeRemId);
+
+      if (!staff || !it) { errEl.style.display='block'; errEl.textContent='Please fill in all fields correctly.'; return; }
+
+      if (mode === 'sqft') {
+        const sqft = parseFloat(document.getElementById('rem-sqft').value);
+        if (isNaN(sqft) || sqft <= 0 || sqft > it.sqftTotal) {
+          errEl.textContent = `Invalid amount. Max removable: ${it.sqftTotal.toFixed(2)} sqft.`;
+          errEl.style.display = 'block'; return;
+        }
+        errEl.style.display = 'none';
+        const oldTotal = it.sqftTotal;
+        it.sqftTotal = parseFloat((it.sqftTotal - sqft).toFixed(2));
+        if (it.sqftUsed > it.sqftTotal) it.sqftUsed = it.sqftTotal;
+        logHistory('removed', it, [], staff, { mode: 'sqft', removed: sqft, oldTotal, newTotal: it.sqftTotal, reason });
+
+      } else {
+        const newW = parseFloat(document.getElementById('rem-w').value);
+        const newL = parseFloat(document.getElementById('rem-l').value);
+        if (isNaN(newW) || isNaN(newL) || newW <= 0 || newL <= 0) {
+          errEl.textContent = 'Enter valid new width and length.';
+          errEl.style.display = 'block'; return;
+        }
+        errEl.style.display = 'none';
+        const oldW = it.widthFt, oldL = it.lengthFt, oldTotal = it.sqftTotal;
+        const newTotal = parseFloat((newW * newL * it.rolls).toFixed(2));
+        it.widthFt = newW; it.lengthFt = newL; it.sqftTotal = newTotal;
+        it.size = `${newW} ft × ${newL} ft`;
+        if (it.sqftUsed > it.sqftTotal) it.sqftUsed = it.sqftTotal;
+        logHistory('size-edited', it, [], staff, { mode: 'ft', oldW, oldL, oldTotal, newW, newL, newTotal, reason });
+      }
+
+      closeModal('rem');
+      render();
+      renderHistory();
+    }
+
+    /* ── render history ─────────────────────── */
+    function renderHistory() {
+      const list    = document.getElementById('history-list');
+      const actF    = document.getElementById('hist-filter').value;
+      const staffF  = document.getElementById('hist-staff-filter').value;
+      const typeF   = document.getElementById('hist-type-filter').value;
+
+      const filtered = history.filter(h =>
+        (actF   === 'all' || h.action === actF) &&
+        (staffF === 'all' || h.staff  === staffF) &&
+        (typeF  === 'all' || (h.item && h.item.type === typeF))
+      );
+
+      if (!filtered.length) {
+        list.innerHTML = `<div class="history-empty">No entries match this filter.</div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(h => {
+        const actionLabel = {
+          added:       'Added',
+          edited:      'Edited',
+          deleted:     'Deleted',
+          used:        'Sqft Used',
+          removed:     'Sqft Removed',
+          'size-edited': 'Size Adjusted'
+        }[h.action] || h.action;
+
+        const changesHtml = h.changes && h.changes.length
+          ? `<div class="h-changes">${h.changes.map(c=>`<span class="change-pill">${c.field}: ${c.from} → ${c.to}</span>`).join('')}</div>`
+          : '';
+
+        let extraHtml = '';
+        if (h.action === 'used' && h.extra) {
+          extraHtml = `<div class="h-changes">
+            <span class="use-pill">−${h.extra.sqftUsed} sqft used</span>
+            <span class="use-pill">Remaining: ${h.extra.remaining} sqft</span>
+            ${h.extra.note ? `<span class="use-pill">📌 ${h.extra.note}</span>` : ''}
+          </div>`;
+        } else if (h.action === 'removed' && h.extra) {
+          extraHtml = `<div class="h-changes">
+            <span class="remove-pill">−${h.extra.removed} sqft removed</span>
+            <span class="remove-pill">${h.extra.oldTotal} → ${h.extra.newTotal} sqft</span>
+            ${h.extra.reason ? `<span class="remove-pill">📋 ${h.extra.reason}</span>` : ''}
+          </div>`;
+        } else if (h.action === 'size-edited' && h.extra) {
+          extraHtml = `<div class="h-changes">
+            <span class="size-pill">Width: ${h.extra.oldW} ft → ${h.extra.newW} ft</span>
+            <span class="size-pill">Length: ${h.extra.oldL} ft → ${h.extra.newL} ft</span>
+            <span class="size-pill">Sqft: ${h.extra.oldTotal} → ${h.extra.newTotal}</span>
+            ${h.extra.reason ? `<span class="size-pill">📋 ${h.extra.reason}</span>` : ''}
+          </div>`;
+        }
+
+        return `
+          <div class="history-entry">
+            <div class="h-dot ${h.action}"></div>
+            <div class="h-body">
+              <div class="h-action">
+                <span class="tag-${h.action}">${actionLabel}</span> — ${h.item ? h.item.name : ''}
+              </div>
+              <div class="h-detail">
+                By <strong>${h.staff}</strong>
+                ${h.item ? ` &nbsp;·&nbsp; ${h.item.type === 'tarpaulin' ? 'Tarp' : 'General'} &nbsp;·&nbsp; ${h.item.size}` : ''}
+                ${h.item && h.item.price ? ` &nbsp;·&nbsp; ₱${Number(h.item.price).toFixed(2)}/sqft` : ''}
+              </div>
+              ${changesHtml}
+              ${extraHtml}
+            </div>
+            <div class="h-time">${h.time}</div>
+          </div>`;
+      }).join('');
+    }
+
+    /* ── tab switch ─────────────────────────── */
+    function exportCsv() {
+      if (items.length === 0) {
+        alert('No items to export.');
+        return;
+      }
+
+      const headers = ['ID','Type','Name','Width_ft','Length_ft','Size','Rolls','Sqft_Total','Sqft_Used','Avail_Sqft','Price','Price_Date','Qty_Date','Staff'];
+      const csvRows = [headers];
+
+      items.forEach(item => {
+        const row = [
+          item.id,
+          item.type,
+          `"${item.name}"`,
+          item.widthFt || '',
+          item.lengthFt || '',
+          item.size || '',
+          item.rolls || '',
+          item.sqftTotal?.toFixed(2) || '',
+          item.sqftUsed?.toFixed(2) || '',
+          item.type === 'tarpaulin' ? (item.sqftTotal - (item.sqftUsed || 0)).toFixed(2) : '',
+          item.price?.toFixed(2) || '',
+          item.datePrice || '',
+          item.dateQty || '',
+          `"${item.staff || ''}"`
+        ];
+        csvRows.push(row);
+      });
+
+      const csvContent = csvRows.map(row => row.join(',')).join('\\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0,10);
+      link.href = URL.createObjectURL(blob);
+      link.download = `inventory_${dateStr}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function switchTab(tab) {
+      document.getElementById('view-inventory').classList.toggle('view-hidden', tab !== 'inventory');
+      document.getElementById('view-history').classList.toggle('view-hidden', tab !== 'history');
+      document.getElementById('tab-inv').classList.toggle('active', tab === 'inventory');
+      document.getElementById('tab-hist').classList.toggle('active', tab === 'history');
+      if (tab === 'history') renderHistory();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (activeUseId !== null) closeModal('use');
+        else if (activeRemId !== null) closeModal('rem');
+        else if (editingId !== null) cancelEdit();
+      }
+    });
+
+    // init
+    onTypeChange();
+  </script>
+  <!-- ══ USE SQFT MODAL ══ -->
+  <div class="modal-overlay" id="use-modal-overlay" onclick="closeModal('use')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <p class="modal-title" style="margin:0;">Use Sqft</p>
+        <button onclick="closeModal('use')" style="background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Staff Name</label>
+          <input type="text" id="use-staff" placeholder="e.g. Juan dela Cruz"/>
+        </div>
+        <div class="computed-box" id="use-stock-box">
+          <span class="computed-label">Available sqft</span>
+          <span class="computed-value" id="use-avail">—</span>
+        </div>
+        <div class="field">
+          <label>Sqft to Use</label>
+          <input type="number" id="use-sqft" placeholder="0.00" min="0.01" step="0.01"/>
+        </div>
+        <div class="field">
+          <label>Purpose / Note</label>
+          <input type="text" id="use-note" placeholder="e.g. 3x5 banner for event"/>
+        </div>
+        <p class="modal-err" id="use-err">Check fields and available stock.</p>
+        <div class="modal-btns">
+          <button class="btn-confirm" style="background:var(--amber);" onclick="useSqft()">Deduct Sqft</button>
+          <button class="btn-modal-cancel" onclick="closeModal('use')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ REMOVE SQFT / FT MODAL ══ -->
+  <div class="modal-overlay" id="rem-modal-overlay" onclick="closeModal('rem')">
+    <div class="modal" onclick="event.stopPropagation()" style="width:380px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <p class="modal-title" style="margin:0;color:#dc6b19;">Remove Sqft or Adjust Ft</p>
+        <button onclick="closeModal('rem')" style="background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Staff Name</label>
+          <input type="text" id="rem-staff" placeholder="e.g. Ana Reyes"/>
+        </div>
+
+        <div class="computed-box" id="rem-info-box" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <div style="display:flex;justify-content:space-between;width:100%;">
+            <span class="computed-label">Current Size</span>
+            <span class="computed-value" id="rem-cur-size">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;width:100%;">
+            <span class="computed-label">Total Sqft</span>
+            <span class="computed-value" id="rem-cur-sqft">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;width:100%;">
+            <span class="computed-label">Available</span>
+            <span class="computed-value" id="rem-cur-avail">—</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Remove by</label>
+          <select id="rem-mode" onchange="onRemModeChange()">
+            <option value="sqft">Sqft amount</option>
+            <option value="ft">Adjust ft dimensions</option>
+          </select>
+        </div>
+
+        <div id="rem-sqft-fields">
+          <div class="field">
+            <label>Sqft to Remove</label>
+            <input type="number" id="rem-sqft" placeholder="0.00" min="0.01" step="0.01"/>
+          </div>
+        </div>
+
+        <div id="rem-ft-fields" style="display:none;">
+          <p class="section-label" style="margin-bottom:6px;">New Dimensions (ft)</p>
+          <div class="size-row">
+            <div class="field">
+              <label>New Width</label>
+              <input type="number" id="rem-w" placeholder="0" min="0" step="0.1" oninput="calcRemSqft()"/>
+            </div>
+            <div class="x-sep">×</div>
+            <div class="field">
+              <label>New Length</label>
+              <input type="number" id="rem-l" placeholder="0" min="0" step="0.1" oninput="calcRemSqft()"/>
+            </div>
+          </div>
+          <div class="computed-box" style="margin-top:8px;">
+            <span class="computed-label">New Total Sqft</span>
+            <span class="computed-value" id="rem-new-sqft">—</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Reason / Note</label>
+          <input type="text" id="rem-reason" placeholder="e.g. damaged, trimmed, returned"/>
+        </div>
+
+        <p class="modal-err" id="rem-err">Please fill in all fields correctly.</p>
+        <div class="modal-btns">
+          <button class="btn-confirm" style="background:#dc6b19;" onclick="removeSqftOrFt()">Apply Removal</button>
+          <button class="btn-modal-cancel" onclick="closeModal('rem')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
