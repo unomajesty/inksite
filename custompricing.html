@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Pricing Configurator</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f4f6fb;
+    min-height: 100vh;
+    padding-bottom: 110px;
+    color: #1a1a2e;
+  }
+
+  /* HEADER */
+  .header {
+    background: #fff;
+    border-bottom: 1px solid #e8eaf0;
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-dot { width: 10px; height: 10px; background: #1d4ed8; border-radius: 50%; }
+  .logo-text { font-weight: 800; font-size: 18px; color: #1a1a2e; letter-spacing: -0.5px; }
+  .logo-text span { color: #1d4ed8; }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 52px 20px 36px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+  .hero p {
+    font-size: 16px;
+    color: #64748b;
+    font-weight: 400;
+  }
+
+  /* MAIN CONTAINER */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* SERVICE TABS */
+  .service-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .tab-card {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 28px 20px 22px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .tab-card:hover { border-color: #93c5fd; background: #f8fbff; }
+  .tab-card.active {
+    border-color: #1d4ed8;
+    background: #f0f5ff;
+  }
+  .tab-card .tab-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+  }
+  .tab-card.website-tab .tab-icon { background: #eff6ff; }
+  .tab-card.print-tab .tab-icon { background: #fdf4ff; }
+  .tab-card.bundle-tab .tab-icon { background: #fdf2f8; }
+  .tab-card.active.website-tab .tab-icon { background: #dbeafe; }
+  .tab-card.active.print-tab .tab-icon { background: #fae8ff; }
+  .tab-card.active.bundle-tab .tab-icon { background: #fce7f3; }
+
+  .tab-icon svg { width: 24px; height: 24px; }
+  .tab-card.website-tab .tab-icon svg { stroke: #3b82f6; }
+  .tab-card.print-tab .tab-icon svg { stroke: #a855f7; }
+  .tab-card.bundle-tab .tab-icon svg { stroke: #ec4899; }
+
+  .tab-card h3 { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+  .tab-card p { font-size: 13px; color: #94a3b8; font-weight: 500; }
+  .tab-card.active h3 { color: #1d4ed8; }
+
+  .save-badge {
+    position: absolute;
+    top: -1px; right: -1px;
+    background: #be185d;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 0 12px 0 10px;
+    letter-spacing: 0.3px;
+  }
+
+  /* PANELS */
+  .panels-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .panels-row.single { grid-template-columns: 1fr; max-width: 580px; }
+
+  .panel {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    border: 1px solid #e8eaf0;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .panel-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .panel-icon.blue { background: #eff6ff; }
+  .panel-icon.pink { background: #fdf4ff; }
+  .panel-icon svg { width: 20px; height: 20px; }
+  .panel-icon.blue svg { stroke: #3b82f6; }
+  .panel-icon.pink svg { stroke: #a855f7; }
+
+  .panel-header h2 { font-size: 17px; font-weight: 700; color: #0f172a; }
+
+  /* SLIDER */
+  .slider-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .slider-label { font-size: 14px; font-weight: 600; color: #374151; }
+  .slider-value { font-size: 14px; font-weight: 700; }
+  .slider-value.blue { color: #2563eb; }
+  .slider-value.pink { color: #be185d; }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    outline: none;
+    margin-bottom: 6px;
+  }
+  input[type=range].blue::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #2563eb;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(37,99,235,0.3);
+  }
+  input[type=range].pink::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #be185d;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(190,24,93,0.3);
+  }
+  .slider-bounds {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-bottom: 24px;
+  }
+
+  /* INCLUDES */
+  .includes-label { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 12px; }
+  .check-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .check-list li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13.5px; color: #374151; font-weight: 500;
+  }
+  .check-icon {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .check-icon.blue { background: #dbeafe; }
+  .check-icon.pink { background: #fce7f3; }
+  .check-icon svg { width: 11px; height: 11px; }
+  .check-icon.blue svg { stroke: #2563eb; }
+  .check-icon.pink svg { stroke: #be185d; }
+
+  /* PRINT BUNDLES */
+  .bundles-label { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 16px; }
+  .bundle-option {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.18s ease;
+  }
+  .bundle-option:hover { border-color: #f9a8d4; }
+  .bundle-option.selected {
+    border-color: #be185d;
+    background: #fdf2f8;
+  }
+  .bundle-option .popular-badge {
+    position: absolute;
+    top: -11px; right: 14px;
+    background: #eab308;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+  .bundle-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .bundle-name { font-size: 14.5px; font-weight: 700; color: #0f172a; }
+  .bundle-price { font-size: 13px; font-weight: 700; color: #be185d; margin-top: 2px; }
+  .bundle-radio {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+  .bundle-option.selected .bundle-radio {
+    border-color: #be185d;
+  }
+  .bundle-radio-inner {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #be185d;
+    display: none;
+  }
+  .bundle-option.selected .bundle-radio-inner { display: block; }
+  .bundle-features { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .bundle-features li {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #475569; font-weight: 500;
+  }
+  .bundle-features li svg { width: 13px; height: 13px; stroke: #be185d; flex-shrink: 0; }
+
+  /* HIDDEN PANELS */
+  .panel-group { display: none; }
+  .panel-group.active { display: block; }
+
+  /* STICKY FOOTER */
+  .price-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0f172a;
+    padding: 22px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+  }
+  .price-label { font-size: 13px; color: #94a3b8; font-weight: 500; margin-bottom: 4px; }
+  .price-amount {
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .quote-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
+    transition: background 0.18s;
+  }
+  .quote-btn:hover { background: #1d4ed8; }
+  .quote-btn svg { width: 18px; height: 18px; stroke: #fff; }
+
+  /* RESPONSIVE */
+  @media (max-width: 680px) {
+    .service-tabs { grid-template-columns: 1fr; }
+    .panels-row { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 26px; }
+    .price-bar { padding: 16px 20px; }
+    .price-amount { font-size: 28px; }
+    .quote-btn { padding: 13px 22px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Build Your Custom Package</h1>
+  <p>Configure your web & print services and get an instant price estimate.</p>
+</div>
+
+<div class="container">
+
+  <!-- SERVICE TABS -->
+  <div class="service-tabs">
+    <div class="tab-card website-tab active" onclick="selectTab('website')">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <h3>Website Only</h3>
+      <p>Custom web development</p>
+    </div>
+    <div class="tab-card print-tab" onclick="selectTab('print')">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+      </div>
+      <h3>Print Only</h3>
+      <p>Business print materials</p>
+    </div>
+    <div class="tab-card bundle-tab" onclick="selectTab('bundle')">
+      <span class="save-badge">Save 15%</span>
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        </svg>
+      </div>
+      <h3>Website + Print</h3>
+      <p>Complete package deal</p>
+    </div>
+  </div>
+
+  <!-- WEBSITE ONLY -->
+  <div class="panel-group active" id="group-website">
+    <div class="panels-row single">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h2>Website Configuration</h2>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">Number of Pages</span>
+          <span class="slider-value blue" id="web-pages-val">5 pages</span>
+        </div>
+        <input type="range" class="blue" id="web-pages" min="1" max="15" value="5" oninput="updateAll()">
+        <div class="slider-bounds"><span>1 page</span><span>15 pages</span></div>
+        <p class="includes-label">Includes:</p>
+        <ul class="check-list">
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mobile responsive design</li>
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>SEO optimization</li>
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Contact form integration</li>
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>1 month free support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT ONLY -->
+  <div class="panel-group" id="group-print">
+    <div class="panels-row single">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pink">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </div>
+          <h2>Print Configuration</h2>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">Business Cards Quantity</span>
+          <span class="slider-value pink" id="print-qty-val">500 pcs</span>
+        </div>
+        <input type="range" class="pink" id="print-qty" min="500" max="2000" step="100" value="500" oninput="updateAll()">
+        <div class="slider-bounds"><span>500 pcs</span><span>2000 pcs</span></div>
+        <p class="includes-label">Includes:</p>
+        <ul class="check-list">
+          <li><span class="check-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Premium card stock</li>
+          <li><span class="check-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Full color printing</li>
+          <li><span class="check-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Free design assistance</li>
+          <li><span class="check-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Fast 3-5 day turnaround</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBSITE + PRINT BUNDLE -->
+  <div class="panel-group" id="group-bundle">
+    <div class="panels-row">
+      <!-- Website Config -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h2>Website Configuration</h2>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">Number of Pages</span>
+          <span class="slider-value blue" id="bundle-pages-val">5 pages</span>
+        </div>
+        <input type="range" class="blue" id="bundle-pages" min="1" max="15" value="5" oninput="updateAll()">
+        <div class="slider-bounds"><span>1 page</span><span>15 pages</span></div>
+        <p class="includes-label">Includes:</p>
+        <ul class="check-list">
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mobile responsive design</li>
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>SEO optimization</li>
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Contact form integration</li>
+          <li><span class="check-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>1 month free support</li>
+        </ul>
+      </div>
+
+      <!-- Print Bundle Selection -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pink">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            </svg>
+          </div>
+          <h2>Print Bundle Selection</h2>
+        </div>
+        <p class="bundles-label">Choose your complete print package</p>
+
+        <!-- Basic -->
+        <div class="bundle-option" id="bundle-basic" onclick="selectBundle('basic')">
+          <div class="bundle-top">
+            <div>
+              <div class="bundle-name">Basic Print Bundle</div>
+              <div class="bundle-price">+₱8,000</div>
+            </div>
+            <div class="bundle-radio"><div class="bundle-radio-inner"></div></div>
+          </div>
+          <ul class="bundle-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>500 Business Cards (Premium Stock)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>100 Flyers (A5 size)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Basic Logo Design</li>
+          </ul>
+        </div>
+
+        <!-- Standard (Popular) -->
+        <div class="bundle-option selected" id="bundle-standard" onclick="selectBundle('standard')">
+          <span class="popular-badge">Popular</span>
+          <div class="bundle-top">
+            <div>
+              <div class="bundle-name">Standard Print Bundle</div>
+              <div class="bundle-price">+₱15,000</div>
+            </div>
+            <div class="bundle-radio"><div class="bundle-radio-inner"></div></div>
+          </div>
+          <ul class="bundle-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1,000 Business Cards (Premium Stock)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>500 Flyers &amp; Brochures (Mixed sizes)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 Large Format Posters (24" x 36")</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1 Roll-up Banner Stand</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Premium Branding Package</li>
+          </ul>
+        </div>
+
+        <!-- Premium -->
+        <div class="bundle-option" id="bundle-premium" onclick="selectBundle('premium')">
+          <div class="bundle-top">
+            <div>
+              <div class="bundle-name">Premium Print Bundle</div>
+              <div class="bundle-price">+₱28,000</div>
+            </div>
+            <div class="bundle-radio"><div class="bundle-radio-inner"></div></div>
+          </div>
+          <ul class="bundle-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2,000 Business Cards (Foil Stamped)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1,000 Flyers &amp; Full-color Brochures</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>4 Large Format Posters + Tarpaulins</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 Roll-up Banners + Exhibition Stand</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full Brand Identity Package</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- PRICE BAR -->
+<div class="price-bar">
+  <div>
+    <div class="price-label">Estimated Total Price</div>
+    <div class="price-amount" id="total-price">₱15,000</div>
+  </div>
+  <button class="quote-btn">
+    Get Quote
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </button>
+</div>
+
+<script>
+  let currentTab = 'website';
+  let selectedBundle = 'standard';
+
+  const bundlePrices = { basic: 8000, standard: 15000, premium: 28000 };
+
+  function selectTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-card').forEach(c => c.classList.remove('active'));
+    document.querySelector('.' + tab + '-tab')?.classList.add('active');
+    document.querySelectorAll('.panel-group').forEach(g => g.classList.remove('active'));
+    document.getElementById('group-' + tab).classList.add('active');
+    updateAll();
+  }
+
+  function selectBundle(name) {
+    selectedBundle = name;
+    document.querySelectorAll('.bundle-option').forEach(o => o.classList.remove('selected'));
+    document.getElementById('bundle-' + name).classList.add('selected');
+    updateAll();
+  }
+
+  function calcWebPrice(pages) {
+    // Base ₱10,000 + ₱2,000 per page
+    return 10000 + (pages - 1) * 2000;
+  }
+
+  function calcPrintPrice(qty) {
+    // ₱3,000 base for 500, +₱3,500 per 500 increment
+    return 3000 + ((qty - 500) / 100) * 350;
+  }
+
+  function updateAll() {
+    const webPages = parseInt(document.getElementById('web-pages').value);
+    const bundlePages = parseInt(document.getElementById('bundle-pages').value);
+    const printQty = parseInt(document.getElementById('print-qty').value);
+
+    document.getElementById('web-pages-val').textContent = webPages + ' page' + (webPages !== 1 ? 's' : '');
+    document.getElementById('bundle-pages-val').textContent = bundlePages + ' page' + (bundlePages !== 1 ? 's' : '');
+    document.getElementById('print-qty-val').textContent = printQty.toLocaleString() + ' pcs';
+
+    let total = 0;
+    if (currentTab === 'website') {
+      total = calcWebPrice(webPages);
+    } else if (currentTab === 'print') {
+      total = calcPrintPrice(printQty);
+    } else {
+      // Bundle with 15% discount
+      const webCost = calcWebPrice(bundlePages);
+      const printCost = bundlePrices[selectedBundle];
+      total = Math.round((webCost + printCost) * 0.85);
+    }
+
+    document.getElementById('total-price').textContent = '₱' + total.toLocaleString();
+
+    // Update slider fill
+    updateSliderFill('web-pages', '#2563eb');
+    updateSliderFill('bundle-pages', '#2563eb');
+    updateSliderFill('print-qty', '#be185d');
+  }
+
+  function updateSliderFill(id, color) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const min = parseFloat(input.min);
+    const max = parseFloat(input.max);
+    const val = parseFloat(input.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    input.style.background = `linear-gradient(to right, ${color} ${pct}%, #e2e8f0 ${pct}%)`;
+  }
+
+  // Init
+  updateAll();
+</script>
+</body>
+</html>
