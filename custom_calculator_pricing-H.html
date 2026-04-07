@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Pricing Calculator</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#f7f7f9;min-height:100vh;padding:2rem 1rem}
+  h1{font-size:30px;font-weight:800;text-align:center;color:#1a1a2e;margin-bottom:6px}
+  .sub{text-align:center;color:#666;font-size:15px;margin-bottom:2rem}
+  .calc-wrap{max-width:900px;margin:0 auto}
+
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:2rem}
+  .tab{border:1.5px solid #ddd;border-radius:14px;padding:1.2rem;cursor:pointer;text-align:center;position:relative;transition:border-color 0.15s,background 0.15s;background:#fff}
+  .tab:hover{border-color:#c0375a}
+  .tab.active{border-color:#2563eb;background:#f0f5ff}
+  .tab-icon{font-size:24px;margin-bottom:6px}
+  .tab-title{font-weight:700;font-size:15px;color:#1a1a2e}
+  .tab-desc{font-size:12px;color:#888;margin-top:2px}
+  .save-badge{position:absolute;top:-12px;right:-10px;background:#c0375a;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px}
+
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem}
+  .panel{background:#fff;border:0.5px solid #e0e0e0;border-radius:14px;padding:1.25rem}
+  .panel-header{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
+  .panel-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px}
+  .icon-blue{background:#e6f1fb}
+  .icon-pink{background:#fbeaf0}
+  .panel-title{font-weight:700;font-size:15px;color:#1a1a2e}
+
+  .slider-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .slider-label{font-size:14px;font-weight:700;color:#1a1a2e}
+  .slider-val{font-size:14px;font-weight:700;color:#c0375a}
+  .slider-val.blue{color:#2563eb}
+  input[type=range]{width:100%;margin-bottom:4px;cursor:pointer;accent-color:#c0375a}
+  input[type=range].blue-range{accent-color:#2563eb}
+  .range-labels{display:flex;justify-content:space-between;font-size:12px;color:#999;margin-bottom:1rem}
+  .includes{font-size:13px;color:#888;margin-bottom:6px}
+  .check-list{list-style:none;margin-top:6px}
+  .check-list li{font-size:13px;color:#555;padding:4px 0;display:flex;align-items:flex-start;gap:7px}
+  .check-list li::before{content:'✓';color:#c0375a;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px}
+
+  .bundle{border:1.5px solid #e0e0e0;border-radius:12px;padding:1rem;margin-bottom:10px;cursor:pointer;position:relative;background:#fff;transition:border-color 0.15s,background 0.15s}
+  .bundle:hover{border-color:#c0375a}
+  .bundle.active{border-color:#c0375a;background:#fff5f7}
+  .bundle-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .bundle-name{font-weight:700;font-size:14px;color:#1a1a2e}
+  .bundle-price{font-weight:700;font-size:14px;color:#c0375a;margin-top:2px}
+  .bundle ul{list-style:none;margin-top:8px}
+  .bundle ul li{font-size:12px;color:#666;padding:2px 0;display:flex;gap:6px;align-items:flex-start}
+  .bundle ul li::before{content:'✓';color:#3b6d11;font-weight:700;font-size:12px;flex-shrink:0}
+  .popular-badge{background:#f5c400;color:#412402;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;position:absolute;top:-11px;right:36px}
+  .radio{width:18px;height:18px;border-radius:50%;border:2px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:border-color 0.15s}
+  .radio.selected{border-color:#c0375a;background:#c0375a}
+  .radio.selected::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%}
+
+  .col-empty{visibility:hidden;pointer-events:none}
+
+  .footer{background:#1a1a2e;border-radius:14px;padding:1.5rem 2rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+  .footer-label{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:4px}
+  .footer-price{font-size:40px;font-weight:900;color:#fff;letter-spacing:-1px}
+  .off-badge{background:#f5c400;color:#412402;font-size:12px;font-weight:800;padding:4px 11px;border-radius:20px;display:inline-block;margin-left:10px;vertical-align:middle}
+  .footer-savings{font-size:13px;color:rgba(255,255,255,0.45);margin-top:5px}
+  .get-btn{background:#2563eb;color:#fff;border:none;border-radius:40px;padding:15px 30px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:background 0.15s,transform 0.1s;flex-shrink:0}
+  .get-btn:hover{background:#1d4ed8;transform:scale(1.03)}
+  .hidden{display:none!important}
+
+  @media(max-width:620px){
+    .panels{grid-template-columns:1fr}
+    .col-empty{display:none}
+    .tabs{grid-template-columns:1fr}
+    .footer{flex-direction:column;text-align:center}
+    .footer-price{font-size:32px}
+  }
+</style>
+</head>
+<body>
+<div class="calc-wrap">
+  <h1>Custom Pricing Calculator</h1>
+  <p class="sub">Adjust the options below to see your estimated price</p>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab" id="tab-web" onclick="setMode('web')">
+      <div class="tab-icon">🌐</div>
+      <div class="tab-title">Website Only</div>
+      <div class="tab-desc">Custom web development</div>
+    </div>
+    <div class="tab" id="tab-print" onclick="setMode('print')">
+      <div class="tab-icon">🖨️</div>
+      <div class="tab-title">Print Only</div>
+      <div class="tab-desc">Business print materials</div>
+    </div>
+    <div class="tab" id="tab-both" onclick="setMode('both')">
+      <div class="save-badge">Save 15%</div>
+      <div class="tab-icon">📦</div>
+      <div class="tab-title">Website + Print</div>
+      <div class="tab-desc">Complete package deal</div>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="panels" id="panels">
+
+    <!-- Web Configuration Panel -->
+    <div class="panel hidden" id="web-panel">
+      <div class="panel-header">
+        <div class="panel-icon icon-blue">🌐</div>
+        <div class="panel-title">Website Configuration</div>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Number of Pages</span>
+        <span class="slider-val blue" id="pages-label">5 pages</span>
+      </div>
+      <input type="range" class="blue-range" min="1" max="15" value="5" step="1" id="pages-slider" oninput="updatePages(this.value)">
+      <div class="range-labels"><span>1 page</span><span>15 pages</span></div>
+      <div class="includes">Includes:</div>
+      <ul class="check-list">
+        <li>Mobile responsive design</li>
+        <li>SEO optimization</li>
+        <li>Contact form integration</li>
+        <li>1 month free support</li>
+      </ul>
+    </div>
+
+    <!-- Print Configuration Panel (Print Only mode) -->
+    <div class="panel hidden" id="print-config-panel">
+      <div class="panel-header">
+        <div class="panel-icon icon-pink">🖨️</div>
+        <div class="panel-title">Print Configuration</div>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Business Cards Quantity</span>
+        <span class="slider-val" id="qty-label">500 pcs</span>
+      </div>
+      <input type="range" min="500" max="2000" value="500" step="100" id="qty-slider" oninput="updateQty(this.value)">
+      <div class="range-labels"><span>500 pcs</span><span>2,000 pcs</span></div>
+      <div class="includes">Includes:</div>
+      <ul class="check-list">
+        <li>Premium card stock</li>
+        <li>Full color printing</li>
+        <li>Free design assistance</li>
+        <li>Fast 3-5 day turnaround</li>
+      </ul>
+    </div>
+
+    <!-- Print Bundle Panel (Website + Print mode) -->
+    <div class="panel hidden" id="print-panel">
+      <div class="panel-header">
+        <div class="panel-icon icon-pink">📦</div>
+        <div class="panel-title">Print Bundle Selection</div>
+      </div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">Choose your complete print package</p>
+
+      <div class="bundle" id="bundle-basic" onclick="selectBundle('basic')">
+        <div class="bundle-header">
+          <div>
+            <div class="bundle-name">Basic Print Bundle</div>
+            <div class="bundle-price">+₱8,000</div>
+          </div>
+          <div class="radio" id="radio-basic"></div>
+        </div>
+        <ul>
+          <li>500 Business Cards (Premium Stock)</li>
+          <li>100 Flyers (A5 size)</li>
+          <li>Basic Logo Design</li>
+        </ul>
+      </div>
+
+      <div class="bundle active" id="bundle-standard" onclick="selectBundle('standard')">
+        <div class="popular-badge">Popular</div>
+        <div class="bundle-header">
+          <div>
+            <div class="bundle-name">Standard Print Bundle</div>
+            <div class="bundle-price">+₱15,000</div>
+          </div>
+          <div class="radio selected" id="radio-standard"></div>
+        </div>
+        <ul>
+          <li>1,000 Business Cards (Premium Stock)</li>
+          <li>500 Flyers &amp; Brochures (Mixed sizes)</li>
+          <li>2 Large Format Posters (24" x 36")</li>
+          <li>1 Roll-up Banner Stand</li>
+          <li>Premium Branding Package</li>
+        </ul>
+      </div>
+
+      <div class="bundle" id="bundle-premium" onclick="selectBundle('premium')">
+        <div class="bundle-header">
+          <div>
+            <div class="bundle-name">Premium Print Bundle</div>
+            <div class="bundle-price">+₱28,000</div>
+          </div>
+          <div class="radio" id="radio-premium"></div>
+        </div>
+        <ul>
+          <li>2,000 Business Cards (Luxury Finish)</li>
+          <li>1,000 Flyers, Brochures &amp; Catalogs</li>
+          <li>Large Format Tarpaulin (6ft x 10ft)</li>
+          <li>3 Custom Signages (Indoor/Outdoor)</li>
+          <li>5 Custom Uniform Shirts with Branding</li>
+          <li>Complete Brand Identity Suite</li>
+          <li>Custom Packaging Design</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Invisible placeholder to keep left panel at half-width -->
+    <div class="col-empty hidden" id="col-placeholder"></div>
+
+  </div><!-- /panels -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>
+      <div class="footer-label">Estimated Total Price</div>
+      <div>
+        <span class="footer-price" id="total-price">₱25,500</span>
+        <span class="off-badge hidden" id="off-badge">15% OFF</span>
+      </div>
+      <div class="footer-savings hidden" id="savings-text"></div>
+    </div>
+    <button class="get-btn">Get Quote →</button>
+  </div>
+
+</div>
+
+<script>
+  let mode = 'both';
+  let pages = 5;
+  let qty = 500;
+  let bundle = 'standard';
+
+  const bundlePrices = { basic: 8000, standard: 15000, premium: 28000 };
+
+  // Print Only pricing: starts at ₱3,000 for 500 pcs, +₱500 per 100 pcs
+  const printPrices = {
+    500:  3000,
+    600:  3500,
+    700:  4000,
+    800:  4500,
+    900:  5000,
+    1000: 5500,
+    1100: 6000,
+    1200: 6500,
+    1300: 7000,
+    1400: 7500,
+    1500: 8000,
+    1600: 8500,
+    1700: 9000,
+    1800: 9500,
+    1900: 10000,
+    2000: 10500
+  };
+
+  // Website pricing: ₱15,000 for 1–5 pages, +₱2,000 per page above 5
+  function webCost() {
+    if (pages <= 5) return 15000;
+    return 15000 + (pages - 5) * 2000;
+  }
+
+  function printOnlyCost() {
+    return printPrices[qty] || 3000;
+  }
+
+  function printBundleCost() {
+    return bundlePrices[bundle];
+  }
+
+  function calcTotal() {
+    let total = 0, savings = 0;
+    if (mode === 'web') {
+      total = webCost();
+    } else if (mode === 'print') {
+      total = printOnlyCost();
+    } else {
+      let raw = webCost() + printBundleCost();
+      savings = Math.round(raw * 0.15);
+      total = raw - savings;
+    }
+    return { total, savings };
+  }
+
+  function updateUI() {
+    const { total, savings } = calcTotal();
+    document.getElementById('total-price').textContent = '₱' + total.toLocaleString();
+    const badge = document.getElementById('off-badge');
+    const savText = document.getElementById('savings-text');
+    if (mode === 'both' && savings > 0) {
+      badge.classList.remove('hidden');
+      savText.classList.remove('hidden');
+      savText.textContent = 'You save ₱' + savings.toLocaleString() + ' with the bundle package';
+    } else {
+      badge.classList.add('hidden');
+      savText.classList.add('hidden');
+    }
+  }
+
+  function setMode(m) {
+    mode = m;
+    ['web','print','both'].forEach(x => document.getElementById('tab-' + x).classList.remove('active'));
+    document.getElementById('tab-' + m).classList.add('active');
+
+    document.getElementById('web-panel').classList.add('hidden');
+    document.getElementById('print-config-panel').classList.add('hidden');
+    document.getElementById('print-panel').classList.add('hidden');
+    document.getElementById('col-placeholder').classList.add('hidden');
+
+    if (m === 'web') {
+      document.getElementById('web-panel').classList.remove('hidden');
+      document.getElementById('col-placeholder').classList.remove('hidden');
+    } else if (m === 'print') {
+      document.getElementById('print-config-panel').classList.remove('hidden');
+      document.getElementById('col-placeholder').classList.remove('hidden');
+    } else {
+      document.getElementById('web-panel').classList.remove('hidden');
+      document.getElementById('print-panel').classList.remove('hidden');
+    }
+    updateUI();
+  }
+
+  function updatePages(v) {
+    pages = parseInt(v);
+    document.getElementById('pages-label').textContent = pages + (pages === 1 ? ' page' : ' pages');
+    updateUI();
+  }
+
+  function updateQty(v) {
+    qty = parseInt(v);
+    document.getElementById('qty-label').textContent = qty.toLocaleString() + ' pcs';
+    updateUI();
+  }
+
+  function selectBundle(b) {
+    bundle = b;
+    ['basic','standard','premium'].forEach(x => {
+      document.getElementById('bundle-' + x).classList.remove('active');
+      document.getElementById('radio-' + x).classList.remove('selected');
+    });
+    document.getElementById('bundle-' + b).classList.add('active');
+    document.getElementById('radio-' + b).classList.add('selected');
+    updateUI();
+  }
+
+  setMode('both');
+  selectBundle('standard');
+</script>
+</body>
+</html>
