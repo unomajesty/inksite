@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipFlow — Content Marketing Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:#080810;color:#f0eff8;font-size:14px;line-height:1.6}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2a2a3e;border-radius:4px}
+
+/* ─── CSS VARS ─── */
+:root{
+  --bg:#080810;--bg2:#0f0f1c;--bg3:#16162a;--bg4:#1e1e30;--bg5:#26263e;
+  --surface:#13131f;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --text:#f0eff8;--text2:#8e8cb0;--text3:#4e4d70;
+  --accent:#6c63ff;--accent2:#4f46e5;--glow:rgba(108,99,255,0.15);
+  --green:#00e5a0;--green-bg:rgba(0,229,160,0.08);
+  --coral:#ff5c5c;--coral-bg:rgba(255,92,92,0.08);
+  --amber:#ffaa33;--amber-bg:rgba(255,170,51,0.08);
+  --blue:#38bdf8;--blue-bg:rgba(56,189,248,0.08);
+  --pink:#e879f9;--pink-bg:rgba(232,121,249,0.08);
+  --r:10px;--rs:6px;--rl:14px;
+  --sidebar:230px;--topbar:58px;
+  --trans:0.18s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ─── LAYOUT ─── */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:var(--sidebar);min-width:var(--sidebar);
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;height:100vh;
+  overflow-y:auto;overflow-x:hidden;z-index:100;
+  transition:transform var(--trans);
+}
+.logo{padding:18px 16px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.logo-icon{width:30px;height:30px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.4px}
+.logo-text span{color:var(--accent)}
+.nav-grp{padding:12px 10px 2px}
+.nav-lbl{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:0 6px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:var(--rs);cursor:pointer;font-size:13px;color:var(--text2);transition:all var(--trans);margin-bottom:1px;user-select:none;position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--glow);color:var(--accent);font-weight:500}
+.nav-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px}
+.sidebar-footer{margin-top:auto;padding:14px;border-top:1px solid var(--border);flex-shrink:0}
+.user-pill{display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--rs);cursor:pointer;transition:background var(--trans)}
+.user-pill:hover{background:var(--bg3)}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--pink));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;font-family:'Syne',sans-serif}
+.avatar.lg{width:38px;height:38px;font-size:13px}
+.user-name{font-size:12px;font-weight:500;line-height:1.2}
+.user-role{font-size:10px;color:var(--text3)}
+
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ─── TOPBAR ─── */
+.topbar{height:var(--topbar);min-height:var(--topbar);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.menu-btn{display:none;width:34px;height:34px;align-items:center;justify-content:center;border-radius:var(--rs);cursor:pointer;color:var(--text2);border:1px solid var(--border);background:transparent;transition:all var(--trans);flex-shrink:0}
+.menu-btn:hover{background:var(--bg3);color:var(--text)}
+.topbar-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.3px;white-space:nowrap}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:5px 11px;transition:border-color var(--trans)}
+.search-box:focus-within{border-color:var(--accent)}
+.search-box input{background:transparent;border:none;outline:none;font-size:12px;color:var(--text);width:140px;font-family:'DM Sans',sans-serif}
+.search-box input::placeholder{color:var(--text3)}
+
+/* ─── BUTTONS ─── */
+.btn{padding:6px 14px;border-radius:var(--rs);border:1px solid var(--border2);background:transparent;font-size:12px;font-weight:500;cursor:pointer;color:var(--text);font-family:'DM Sans',sans-serif;transition:all var(--trans);white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--bg3)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-lg{padding:10px 22px;font-size:13px}
+.btn-ghost{border-color:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);border-color:var(--border)}
+.btn-danger{background:var(--coral-bg);border-color:var(--coral);color:var(--coral)}
+.btn-danger:hover{background:var(--coral);color:#fff}
+.icon-btn{width:32px;height:32px;border-radius:var(--rs);border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px;transition:all var(--trans);flex-shrink:0}
+.icon-btn:hover{background:var(--bg3);color:var(--text)}
+
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;padding:20px;background:var(--bg)}
+.page{display:none;animation:fadeUp 0.2s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── PAGE HEADER ─── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.page-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.4px}
+.page-sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* ─── STATS ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;transition:border-color var(--trans);position:relative;overflow:hidden}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:60px;height:60px;border-radius:50%;opacity:.12}
+.stat-card.c1::after{background:var(--accent)}
+.stat-card.c2::after{background:var(--green)}
+.stat-card.c3::after{background:var(--amber)}
+.stat-card.c4::after{background:var(--coral)}
+.stat-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;letter-spacing:-1px;margin-bottom:4px}
+.stat-chg{font-size:11px;color:var(--green);display:flex;align-items:center;gap:2px}
+
+/* ─── CARDS ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:border-color var(--trans)}
+.card:hover{border-color:var(--border2)}
+.card-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.grid75{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:16px}
+
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.bg-purple{background:var(--glow);color:var(--accent);border:1px solid rgba(108,99,255,.2)}
+.bg-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(0,229,160,.2)}
+.bg-coral{background:var(--coral-bg);color:var(--coral);border:1px solid rgba(255,92,92,.2)}
+.bg-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(255,170,51,.2)}
+.bg-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(56,189,248,.2)}
+
+/* ─── TABS ─── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:18px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--trans);white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ─── FORM ─── */
+label.lbl{font-size:11px;font-weight:500;color:var(--text2);display:block;margin-bottom:5px}
+input[type=text],input[type=url],input[type=email],textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:8px 11px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color var(--trans)}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+select option{background:var(--bg3)}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--bg5);border-radius:3px;outline:none;border:none;padding:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;transition:transform var(--trans)}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-val{font-size:12px;font-weight:600;color:var(--accent);width:46px;text-align:right;flex-shrink:0}
+
+/* ─── TOGGLE ─── */
+.toggle{width:34px;height:19px;border-radius:10px;background:var(--bg5);border:1px solid var(--border);cursor:pointer;position:relative;transition:all var(--trans);flex-shrink:0}
+.toggle::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--text3);top:2px;left:2px;transition:all var(--trans)}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle.on::after{background:#fff;left:17px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info{flex:1}
+.toggle-lbl{font-size:12px;font-weight:500}
+.toggle-sub{font-size:10px;color:var(--text3)}
+
+/* ─── VIDEO ITEMS ─── */
+.video-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.video-row:last-child{border-bottom:none;padding-bottom:0}
+.video-row:first-child{padding-top:0}
+.vthumb{width:54px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative;overflow:hidden}
+.vthumb.p{background:linear-gradient(135deg,#2d1b69,#6c63ff)}
+.vthumb.g{background:linear-gradient(135deg,#0a4d30,#00e5a0)}
+.vthumb.r{background:linear-gradient(135deg,#5c0000,#ff5c5c)}
+.vthumb.b{background:linear-gradient(135deg,#062a4a,#38bdf8)}
+.vinfo{flex:1;min-width:0}
+.vname{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vmeta{font-size:10px;color:var(--text3);margin-top:1px}
+
+/* ─── PROGRESS ─── */
+.prog-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.prog-row:last-child{border-bottom:none}
+.prog-lbl{font-size:12px;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-bar{flex:1;height:4px;background:var(--bg5);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .8s ease}
+.prog-pct{font-size:11px;color:var(--text2);width:30px;text-align:right;flex-shrink:0}
+
+/* ─── PLATFORM ROW ─── */
+.plat-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.plat-row:last-child{border-bottom:none}
+.plat-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.plat-name{flex:1;font-size:12px;font-weight:500}
+
+/* ─── SCHEDULE ─── */
+.sched-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.sched-row:last-child{border-bottom:none;padding-bottom:0}
+.sched-row:first-child{padding-top:0}
+.time-blk{width:50px;flex-shrink:0;text-align:center}
+.time-h{font-family:'Syne',sans-serif;font-size:13px;font-weight:700}
+.time-d{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+
+/* ─── TEAM ─── */
+.team-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.team-row:last-child{border-bottom:none;padding-bottom:0}
+.team-row:first-child{padding-top:0}
+
+/* ─── AUDIO BARS ─── */
+.audio-bars{display:flex;align-items:flex-end;gap:2px;height:44px}
+.abar{width:5px;background:var(--accent);border-radius:3px;animation:abounce 1.2s ease-in-out infinite;opacity:.75}
+@keyframes abounce{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+
+/* ─── CHART ─── */
+.chart-wrap{height:130px;display:flex;align-items:flex-end;gap:6px;padding:0 2px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.chart-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;cursor:pointer;transition:opacity var(--trans)}
+.chart-bar:hover{opacity:.8}
+.chart-lbl{font-size:9px;color:var(--text3);text-align:center}
+
+/* ═══════════════════════════════════════════════════════
+   ▶ VIDEO EDITOR STYLES
+═══════════════════════════════════════════════════════ */
+.editor-wrap{display:flex;flex-direction:column;gap:16px}
+
+/* Upload Zone */
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--rl);padding:40px 20px;text-align:center;cursor:pointer;transition:all var(--trans);background:var(--bg2);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--glow)}
+.upload-zone input[type=file]{display:none}
+.upload-icon{font-size:36px;margin-bottom:10px}
+.upload-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:5px}
+.upload-sub{font-size:12px;color:var(--text2);line-height:1.8}
+.upload-or{display:flex;align-items:center;gap:10px;margin:16px 0}
+.upload-or::before,.upload-or::after{content:'';flex:1;height:1px;background:var(--border)}
+.upload-or span{font-size:11px;color:var(--text3)}
+
+/* URL Input row */
+.url-row{display:flex;gap:8px}
+.url-row input{flex:1}
+.url-row .btn{flex-shrink:0}
+
+/* Video Preview Panel */
+.editor-main{display:grid;grid-template-columns:1fr 300px;gap:14px}
+.preview-panel{display:flex;flex-direction:column;gap:12px}
+.video-stage{background:#000;border-radius:var(--r);overflow:hidden;position:relative;width:100%;height:380px;min-height:280px}
+.video-stage video{display:block;width:100%;height:100%;object-fit:contain;position:relative;z-index:1;cursor:pointer}
+.video-overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);z-index:4;cursor:pointer;transition:opacity .2s}
+.video-overlay.hidden{opacity:0!important;pointer-events:none!important;display:flex!important}
+.play-icon{width:62px;height:62px;border-radius:50%;background:rgba(0,0,0,.45);border:2.5px solid rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;pointer-events:none}
+
+/* Crop Frame */
+.crop-frame-wrap{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;z-index:5}
+.crop-frame{border:2px solid var(--accent);box-shadow:none;transition:all .3s ease;position:relative;background:transparent}
+.crop-frame::before,.crop-frame::after{content:'';position:absolute;border-color:var(--accent);border-style:solid}
+.crop-frame::before{top:-1px;left:-1px;width:16px;height:16px;border-width:2px 0 0 2px}
+.crop-frame::after{bottom:-1px;right:-1px;width:16px;height:16px;border-width:0 2px 2px 0}
+.crop-label{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+
+/* Timeline */
+.timeline{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:10px;position:relative}
+.timeline-track{height:36px;background:var(--bg3);border-radius:4px;position:relative;overflow:hidden;cursor:pointer}
+.timeline-bar{position:absolute;top:2px;bottom:2px;left:0;background:linear-gradient(90deg,var(--accent),var(--pink));border-radius:4px;opacity:.85}
+.timeline-handle{position:absolute;top:0;bottom:0;width:3px;background:#fff;cursor:ew-resize;border-radius:2px}
+.timeline-handle.start{left:0}
+.timeline-handle.end{right:0}
+.timeline-labels{display:flex;justify-content:space-between;margin-top:4px}
+.timeline-labels span{font-size:9px;color:var(--text3)}
+.timeline-controls{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.tc-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text2);transition:all var(--trans)}
+.tc-btn:hover{background:var(--bg3);color:var(--text)}
+.tc-btn.play-btn{width:38px;height:38px;font-size:16px;background:var(--accent);border-color:var(--accent);color:#fff}
+.tc-btn.play-btn:hover{background:var(--accent2)}
+.tc-time{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text2);min-width:80px;text-align:center}
+
+/* ── Video Player Bar ── */
+.vplayer{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:10px 14px;margin-top:8px;gap:0}
+.vp-seekwrap{padding:4px 0 8px;cursor:pointer;user-select:none}
+.vp-seektrack{position:relative;height:4px;background:rgba(255,255,255,.15);border-radius:99px;transition:height .12s}
+.vp-seekwrap:hover .vp-seektrack{height:6px}
+.vp-seekfill{position:absolute;left:0;top:0;height:100%;background:var(--accent);border-radius:99px;pointer-events:none;transition:width .05s linear}
+.vp-seekthumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#fff;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 0 4px rgba(0,0,0,.6)}
+.vp-seekwrap:hover .vp-seekthumb{opacity:1}
+.vp-controls{display:flex;align-items:center;justify-content:space-between}
+.vp-left,.vp-right{display:flex;align-items:center;gap:2px}
+.vp-btn{background:none;border:none;color:var(--text);cursor:pointer;padding:7px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .15s;line-height:0}
+.vp-btn:hover{background:var(--surface2)}
+.vp-time{font-size:12px;color:var(--text2);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:8px;min-width:95px}
+.vp-vol{-webkit-appearance:none;appearance:none;width:72px;height:4px;border-radius:99px;background:rgba(255,255,255,.2);outline:none;cursor:pointer;accent-color:var(--accent)}
+.vp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--accent);cursor:pointer}
+.vp-vol::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--accent);cursor:pointer;border:none}
+#videoStage:-webkit-full-screen,#videoStage:fullscreen{border-radius:0;background:#000}
+
+/* Editor sidebar */
+.editor-sidebar{display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:calc(100vh - var(--topbar) - 140px)}
+
+/* Format presets */
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.preset-card{border:1px solid var(--border);border-radius:var(--rs);padding:10px 8px;text-align:center;cursor:pointer;transition:all var(--trans);background:var(--bg2)}
+.preset-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.preset-card.sel{border-color:var(--accent);background:var(--glow)}
+.preset-icon{font-size:16px;margin-bottom:3px}
+.preset-ratio{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--accent);margin:2px 0}
+.preset-card:not(.sel) .preset-ratio{color:var(--text2)}
+.preset-name{font-size:11px;font-weight:600;color:var(--text)}
+.preset-plats{font-size:9px;color:var(--text3);margin-top:1px;line-height:1.4}
+
+/* Platform grid full */
+.preset-grid-full{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+
+/* Custom size inputs */
+.size-inputs{display:flex;gap:8px;align-items:center}
+.size-inputs input{text-align:center}
+.size-x{font-size:12px;color:var(--text3);flex-shrink:0}
+
+/* Processing overlay */
+.processing-overlay{position:fixed;inset:0;background:rgba(8,8,16,.9);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;display:none}
+.processing-overlay.show{display:flex}
+.proc-spinner{width:56px;height:56px;border-radius:50%;border:3px solid var(--bg5);border-top-color:var(--accent);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text)}
+.proc-sub{font-size:12px;color:var(--text2)}
+.proc-bar-wrap{width:280px;height:4px;background:var(--bg5);border-radius:4px;overflow:hidden}
+.proc-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--pink));border-radius:4px;width:0;transition:width .3s ease}
+
+/* Video loaded state */
+.video-info-bar{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px}
+.vi-icon{font-size:20px;flex-shrink:0}
+.vi-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.vi-dur{font-size:10px;color:var(--text3);flex-shrink:0}
+.vi-close{cursor:pointer;font-size:14px;color:var(--text3);flex-shrink:0;padding:2px;border-radius:4px;transition:color var(--trans)}
+.vi-close:hover{color:var(--coral)}
+
+/* Export panel */
+.export-options{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.export-plat{display:flex;align-items:center;gap:10px;padding:9px;border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all var(--trans)}
+.export-plat:hover{border-color:var(--border2)}
+.export-plat.sel{border-color:var(--accent);background:var(--glow)}
+.export-plat input[type=checkbox]{accent-color:var(--accent)}
+.export-plat-icon{font-size:16px;flex-shrink:0}
+.export-plat-info{flex:1}
+.export-plat-name{font-size:12px;font-weight:500}
+.export-plat-size{font-size:10px;color:var(--text3)}
+
+/* Notification dot */
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--coral);position:absolute;top:5px;right:5px;border:2px solid var(--bg2)}
+
+/* Overlay sidebar */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;backdrop-filter:blur(2px);transition:opacity var(--trans)}
+
+/* ─── MOBILE ─── */
+@media(max-width:900px){
+  .editor-main{grid-template-columns:1fr}
+  .editor-sidebar{max-height:none;overflow-y:visible}
+}
+@media(max-width:768px){
+  .sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  .sidebar.open{transform:translateX(0)}
+  .overlay{display:block;opacity:0;pointer-events:none}
+  .overlay.show{opacity:1;pointer-events:all}
+  .menu-btn{display:flex}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .grid2,.grid3,.grid75{grid-template-columns:1fr}
+  .search-box{display:none}
+  .topbar{padding:0 14px}
+  .content{padding:14px}
+  .preset-grid-full{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr}
+  .preset-grid{grid-template-columns:repeat(3,1fr)}
+  .preset-grid-full{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ─── MISC ─── */
+.divider{height:1px;background:var(--border);margin:12px 0}
+.color-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;transition:transform var(--trans);flex-shrink:0}
+.color-dot:hover{transform:scale(1.15)}
+.color-row{display:flex;gap:7px;flex-wrap:wrap}
+.color-dot.sel{outline:2px solid var(--text);outline-offset:2px}
+.caption-stage{background:#0a0a14;border-radius:var(--r);aspect-ratio:9/16;max-height:260px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:24px;position:relative;overflow:hidden}
+.caption-stage-bg{position:absolute;inset:0;background:linear-gradient(180deg,#1a0033 0%,#0a0a14 60%,#001433 100%)}
+.caption-txt{font-size:20px;font-weight:900;color:#fff;text-align:center;text-shadow:0 2px 10px rgba(0,0,0,.8);padding:0 10px;line-height:1.2;font-family:'Syne',sans-serif;z-index:1;position:relative}
+.thumb-preview{background:linear-gradient(135deg,#0d001a,#001433);border-radius:var(--r);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:10px}
+.thumb-preview-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;text-align:center;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.6);padding:10px}
+.notif-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.notif-item:last-child{border-bottom:none}
+.ndot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.mb12{margin-bottom:12px}
+.mb16{margin-bottom:16px}
+.mt8{margin-top:8px}
+.mt12{margin-top:12px}
+.mt16{margin-top:16px}
+.flex{display:flex}
+.gap8{gap:8px}
+.gap10{gap:10px}
+.gap12{gap:12px}
+.flex-col{flex-direction:column}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.w100{width:100%}
+.text3{color:var(--text3)}
+.text2{color:var(--text2)}
+.text-sm{font-size:11px}
+.fw700{font-weight:700;font-family:'Syne',sans-serif}
+
+/* ── Trim Panel ── */
+.trim-track-wrap{margin-top:10px}
+.trim-track{position:relative;height:36px;background:var(--surface2);border-radius:6px;overflow:visible;user-select:none}
+.trim-shade{position:absolute;top:0;bottom:0;background:rgba(0,0,0,.55);z-index:1;pointer-events:none}
+.trim-shade-l{left:0;border-radius:6px 0 0 6px}
+.trim-shade-r{right:0;border-radius:0 6px 6px 0}
+.trim-active{position:absolute;top:0;bottom:0;background:rgba(139,92,246,.18);border-top:2px solid var(--accent);border-bottom:2px solid var(--accent);z-index:2;pointer-events:none}
+.trim-playhead{position:absolute;top:-4px;bottom:-4px;width:2px;background:#fff;z-index:4;pointer-events:none;border-radius:2px;box-shadow:0 0 4px rgba(0,0,0,.5)}
+.trim-handle{position:absolute;top:0;bottom:0;width:16px;z-index:5;cursor:ew-resize;display:flex;align-items:center;justify-content:center;touch-action:none}
+.trim-handle-l{left:-8px;transform:translateX(0)}
+.trim-handle-r{right:-8px;transform:translateX(0)}
+.trim-handle::before{content:'';position:absolute;top:0;bottom:0;width:4px;background:var(--accent);border-radius:3px;box-shadow:0 0 8px rgba(139,92,246,.6)}
+.trim-handle-l::before{right:6px}
+.trim-handle-r::before{left:6px}
+.trim-handle-grip{width:2px;height:14px;background:rgba(255,255,255,.8);border-radius:2px;position:relative;z-index:1}
+.trim-labels{display:flex;justify-content:space-between;align-items:center;margin-top:5px;font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Processing Overlay -->
+<div class="processing-overlay" id="procOverlay">
+  <div class="proc-spinner"></div>
+  <div class="proc-text" id="procText">Processing video...</div>
+  <div class="proc-sub" id="procSub">This may take a moment</div>
+  <div class="proc-bar-wrap"><div class="proc-bar" id="procBar"></div></div>
+</div>
+
+<div class="app">
+<!-- ════════════ SIDEBAR ════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🎬</div>
+    <div class="logo-text">Clip<span>Flow</span></div>
+  </div>
+
+  <div class="nav-grp">
+    <div class="nav-lbl">Editor</div>
+    <div class="nav-item active" onclick="showPage('editor',this)">
+      <div class="nav-icon">✂️</div>Video Editor
+    </div>
+    <div class="nav-item" onclick="showPage('repurpose',this)">
+      <div class="nav-icon">🎬</div>Repurpose
+    </div>
+    <div class="nav-item" onclick="showPage('captions',this)">
+      <div class="nav-icon">💬</div>Captions
+    </div>
+  </div>
+
+  <div class="nav-grp">
+    <div class="nav-lbl">Manage</div>
+    <div class="nav-item" onclick="showPage('branding',this)">
+      <div class="nav-icon">🎨</div>Branding
+    </div>
+    <div class="nav-item" onclick="showPage('scheduler',this)">
+      <div class="nav-icon">📅</div>Scheduler
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('team',this)">
+      <div class="nav-icon">👥</div>Team
+    </div>
+    <div class="nav-item" onclick="showPage('audio',this)">
+      <div class="nav-icon">🔊</div>Audio & Voice
+    </div>
+  </div>
+
+  <div class="nav-grp">
+    <div class="nav-lbl">Insights</div>
+    <div class="nav-item" onclick="showPage('analytics',this)">
+      <div class="nav-icon">📊</div>Analytics
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">JD</div>
+      <div>
+        <div class="user-name">Jane Doe</div>
+        <div class="user-role">Pro Plan · Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="main">
+  <div class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect y="2" width="16" height="1.6" rx=".8" fill="currentColor"/>
+        <rect y="7.2" width="16" height="1.6" rx=".8" fill="currentColor"/>
+        <rect y="12.4" width="16" height="1.6" rx=".8" fill="currentColor"/>
+      </svg>
+    </button>
+    <div class="topbar-title" id="topbar-title">Video Editor</div>
+    <div class="topbar-right">
+      <div class="search-box">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.4" opacity=".4"/><path d="M8.5 8.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".4"/></svg>
+        <input type="text" placeholder="Search projects...">
+      </div>
+      <div class="icon-btn" style="position:relative" title="Notifications">🔔<div class="notif-dot"></div></div>
+      <button class="btn btn-primary" onclick="showPage('editor',document.querySelector('[onclick*=editor]'))">+ New Edit</button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: VIDEO EDITOR
+══════════════════════════════════════════════════════ -->
+<div class="page active" id="page-editor">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Video Editor</div>
+      <div class="page-sub">Upload or paste a link — then crop, resize, and export for any platform</div>
+    </div>
+    <div class="flex gap8">
+      <button class="btn" id="resetBtn" onclick="resetEditor()" style="display:none">↺ Reset</button>
+      <button class="btn btn-primary" id="exportBtn" onclick="exportVideo()" style="display:none">⬇ Export</button>
+    </div>
+  </div>
+
+  <!-- UPLOAD SECTION (shown when no video) -->
+  <div id="uploadSection">
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept="video/*" style="display:none">
+      <div class="upload-icon">🎬</div>
+      <div class="upload-title">Drop your video here</div>
+      <div class="upload-sub">
+        MP4 · MOV · AVI · MKV · WebM — up to 2 GB<br>
+        Drag & drop or <span style="color:var(--accent);text-decoration:underline">click to browse</span>
+      </div>
+      <button class="btn btn-primary" style="margin-top:14px;pointer-events:none">📁 Choose Video File</button>
+    </div>
+
+    <div class="upload-or"><span>or import from URL</span></div>
+
+    <div class="url-row">
+      <input type="url" id="videoUrlInput" placeholder="Paste YouTube, TikTok, Instagram, Vimeo, or direct video URL...">
+      <button class="btn btn-primary" onclick="handleUrlImport()">Import ↗</button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:6px">
+      ⚠️ For YouTube/social links, the app will load a preview. Direct .mp4 URLs load natively in browser.
+    </div>
+
+    <div class="divider mt12"></div>
+
+    <!-- Sample Videos -->
+    <div class="card mt12">
+      <div class="card-title">Try a sample video</div>
+      <div class="flex gap8" style="flex-wrap:wrap">
+        <button class="btn" onclick="loadSample('product')">📦 Product Demo</button>
+        <button class="btn" onclick="loadSample('webinar')">🎙 Webinar Clip</button>
+        <button class="btn" onclick="loadSample('interview')">🎤 Interview</button>
+        <button class="btn" onclick="loadSample('tutorial')">📚 Tutorial</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR SECTION (shown after video loaded) -->
+  <div id="editorSection" style="display:none">
+
+    <!-- Video info bar -->
+    <div class="video-info-bar mb12" id="videoInfoBar">
+      <div class="vi-icon">🎬</div>
+      <div class="vi-name" id="viName">video.mp4</div>
+      <div class="vi-dur" id="viDur">0:00</div>
+      <div class="vi-close" onclick="resetEditor()" title="Remove video">✕</div>
+    </div>
+
+    <div class="editor-main">
+      <!-- LEFT: VIDEO PREVIEW + TIMELINE -->
+      <div class="preview-panel">
+
+        <!-- Video Stage -->
+        <div class="video-stage" id="videoStage"></div>
+
+        <!-- Video Player Controls -->
+        <div class="vplayer">
+
+          <!-- Seek bar -->
+          <div class="vp-seekwrap">
+            <div class="vp-seektrack" id="seekTrack" onmousedown="seekStart(event)" ontouchstart="seekTouchStart(event)">
+              <div class="vp-seekfill" id="seekFill" style="width:0%"></div>
+              <div class="vp-seekthumb" id="seekThumb" style="left:0%"></div>
+            </div>
+          </div>
+
+          <!-- Controls row -->
+          <div class="vp-controls">
+
+            <!-- Left: play + time -->
+            <div class="vp-left">
+              <button class="vp-btn" id="playBtn" onclick="togglePlay()" title="Play / Pause">
+                <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="display:none"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+              </button>
+              <button class="vp-btn" onclick="skipTime(-10)" title="−10s">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/><text x="8.5" y="15" font-size="5" fill="currentColor">10</text></svg>
+              </button>
+              <button class="vp-btn" onclick="skipTime(10)" title="+10s">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/><text x="8.5" y="15" font-size="5" fill="currentColor">10</text></svg>
+              </button>
+              <span class="vp-time" id="tcTime">0:00 / 0:00</span>
+            </div>
+
+            <!-- Right: volume + mute + fullscreen -->
+            <div class="vp-right">
+              <button class="vp-btn" id="muteBtn" onclick="toggleMuteBtn()" title="Mute / Unmute">
+                <svg id="iconVol" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                <svg id="iconMute" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" style="display:none"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+              </button>
+              <input class="vp-vol" id="volSlider" type="range" min="0" max="1" step="0.02" value="1"
+                oninput="setVolume(this.value)" title="Volume">
+              <button class="vp-btn" onclick="toggleFullscreen()" title="Fullscreen">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Trim Panel -->
+        <div class="card" id="trimPanel">
+          <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+            <span>✂️ Trim Video</span>
+            <span id="trimRangeLabel" style="font-size:11px;color:var(--accent);font-variant-numeric:tabular-nums">Full video</span>
+          </div>
+
+          <!-- Trim timeline bar with draggable handles -->
+          <div class="trim-track-wrap" id="trimTrackWrap">
+            <div class="trim-track" id="trimTrack">
+              <!-- shaded-out left region -->
+              <div class="trim-shade trim-shade-l" id="trimShadeL" style="width:0%"></div>
+              <!-- active region -->
+              <div class="trim-active" id="trimActive" style="left:0%;width:100%"></div>
+              <!-- shaded-out right region -->
+              <div class="trim-shade trim-shade-r" id="trimShadeR" style="width:0%"></div>
+              <!-- playhead inside trim bar -->
+              <div class="trim-playhead" id="trimPlayhead" style="left:0%"></div>
+              <!-- handles -->
+              <div class="trim-handle trim-handle-l" id="trimHandleL" title="Drag to set start" onmousedown="trimDragStart(event,'in')" ontouchstart="trimTouchStart(event,'in')">
+                <div class="trim-handle-grip"></div>
+              </div>
+              <div class="trim-handle trim-handle-r" id="trimHandleR" title="Drag to set end" onmousedown="trimDragStart(event,'out')" ontouchstart="trimTouchStart(event,'out')">
+                <div class="trim-handle-grip"></div>
+              </div>
+            </div>
+            <div class="trim-labels">
+              <span id="trimInLabel">0:00</span>
+              <span style="color:var(--text3);font-size:10px">drag handles to trim</span>
+              <span id="trimOutLabel">0:00</span>
+            </div>
+          </div>
+
+          <!-- In / Out time inputs -->
+          <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">▶ Start</div>
+              <div style="display:flex;gap:4px;align-items:center">
+                <input id="trimInInput" type="text" value="0:00" style="width:100%;text-align:center;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600"
+                  onchange="applyTrimInputs()" placeholder="0:00">
+                <button class="btn btn-sm" onclick="setTrimInNow()" title="Set to current time" style="white-space:nowrap;padding:4px 8px">Set ◀</button>
+              </div>
+            </div>
+            <div style="color:var(--text3);font-size:18px;padding-top:14px">→</div>
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">⏹ End</div>
+              <div style="display:flex;gap:4px;align-items:center">
+                <button class="btn btn-sm" onclick="setTrimOutNow()" title="Set to current time" style="white-space:nowrap;padding:4px 8px">Set ▶</button>
+                <input id="trimOutInput" type="text" value="0:00" style="width:100%;text-align:center;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600"
+                  onchange="applyTrimInputs()" placeholder="0:00">
+              </div>
+            </div>
+          </div>
+
+          <!-- Trim action buttons -->
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn btn-primary" style="flex:1" onclick="applyTrim()">✂️ Apply Trim</button>
+            <button class="btn" style="flex:1" onclick="resetTrim()">↺ Reset</button>
+            <button class="btn btn-sm" onclick="previewTrim()" title="Preview trim range">▶ Preview</button>
+          </div>
+        </div>
+
+        <!-- Quick Tools -->
+        <div class="card">
+          <div class="card-title">Quick Tools</div>
+          <div class="flex gap8" style="flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="toggleMute()">🔇 Mute audio</button>
+            <button class="btn btn-sm" onclick="cycleSpeed()">⚡ Speed</button>
+            <button class="btn btn-sm" onclick="toggleFlip()">↔️ Flip</button>
+            <button class="btn btn-sm" onclick="showAdjustPanel()">☀️ Adjust</button>
+            <button class="btn btn-sm btn-primary" onclick="applyAutoCrop()">🤖 Auto-crop</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: EDITOR SIDEBAR -->
+      <div class="editor-sidebar">
+
+        <!-- Social Media Presets -->
+        <div class="card">
+          <div class="card-title">📱 Platform Presets — Auto Crop</div>
+          <div class="preset-grid-full" id="presetGrid">
+
+            <div class="preset-card sel" onclick="selectPreset(this,'9:16','TikTok','TikTok · Reels · Shorts','1080×1920','tiktok')">
+              <div class="preset-icon">🎵</div>
+              <div class="preset-ratio">9:16</div>
+              <div class="preset-name">TikTok</div>
+              <div class="preset-plats">1080×1920</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'9:16','Instagram Reels','Reels & Stories','1080×1920','reels')">
+              <div class="preset-icon">📸</div>
+              <div class="preset-ratio">9:16</div>
+              <div class="preset-name">Instagram</div>
+              <div class="preset-plats">Reels & Stories</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'9:16','YouTube Shorts','Vertical short-form','1080×1920','yt-shorts')">
+              <div class="preset-icon">▶️</div>
+              <div class="preset-ratio">9:16</div>
+              <div class="preset-name">YT Shorts</div>
+              <div class="preset-plats">Vertical</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'16:9','YouTube','Standard & Landscape','1920×1080','youtube')">
+              <div class="preset-icon">🖥</div>
+              <div class="preset-ratio">16:9</div>
+              <div class="preset-name">YouTube</div>
+              <div class="preset-plats">1920×1080</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'1:1','Instagram Feed','Square feed post','1080×1080','ig-feed')">
+              <div class="preset-icon">⬛</div>
+              <div class="preset-ratio">1:1</div>
+              <div class="preset-name">IG Feed</div>
+              <div class="preset-plats">1080×1080</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'4:5','Instagram Post','Portrait feed','1080×1350','ig-post')">
+              <div class="preset-icon">📷</div>
+              <div class="preset-ratio">4:5</div>
+              <div class="preset-name">IG Post</div>
+              <div class="preset-plats">1080×1350</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'16:9','Facebook','Standard post','1280×720','facebook')">
+              <div class="preset-icon">📘</div>
+              <div class="preset-ratio">16:9</div>
+              <div class="preset-name">Facebook</div>
+              <div class="preset-plats">1280×720</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'1:1','Facebook Square','Square post','1080×1080','fb-sq')">
+              <div class="preset-icon">🟦</div>
+              <div class="preset-ratio">1:1</div>
+              <div class="preset-name">FB Square</div>
+              <div class="preset-plats">1080×1080</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'16:9','LinkedIn','Professional video','1920×1080','linkedin')">
+              <div class="preset-icon">💼</div>
+              <div class="preset-ratio">16:9</div>
+              <div class="preset-name">LinkedIn</div>
+              <div class="preset-plats">1920×1080</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'16:9','X (Twitter)','Landscape clip','1280×720','twitter')">
+              <div class="preset-icon">🐦</div>
+              <div class="preset-ratio">16:9</div>
+              <div class="preset-name">X/Twitter</div>
+              <div class="preset-plats">1280×720</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'9:16','Snapchat','Vertical snap','1080×1920','snapchat')">
+              <div class="preset-icon">👻</div>
+              <div class="preset-ratio">9:16</div>
+              <div class="preset-name">Snapchat</div>
+              <div class="preset-plats">1080×1920</div>
+            </div>
+
+            <div class="preset-card" onclick="selectPreset(this,'16:9','Pinterest','Pin video','1920×1080','pinterest')">
+              <div class="preset-icon">📌</div>
+              <div class="preset-ratio">16:9</div>
+              <div class="preset-name">Pinterest</div>
+              <div class="preset-plats">1920×1080</div>
+            </div>
+
+          </div>
+
+          <!-- Custom Size -->
+          <div class="divider"></div>
+          <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px">Custom size</div>
+          <div class="size-inputs">
+            <input type="text" id="customW" placeholder="Width" value="1080" style="text-align:center">
+            <div class="size-x">×</div>
+            <input type="text" id="customH" placeholder="Height" value="1920" style="text-align:center">
+            <button class="btn btn-sm" onclick="applyCustomSize()">Apply</button>
+          </div>
+        </div>
+
+        <!-- Current Format Info -->
+        <div class="card" id="formatInfoCard">
+          <div class="card-title">Selected Format</div>
+          <div style="text-align:center;padding:10px 0">
+            <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)" id="formatRatioLg">9:16</div>
+            <div style="font-size:14px;font-weight:600;margin:4px 0" id="formatNameLg">TikTok</div>
+            <div style="font-size:11px;color:var(--text3)" id="formatSizeLg">1080 × 1920 px</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px" id="formatPlatsLg">TikTok · Reels · Shorts</div>
+          </div>
+          <div class="divider"></div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="toggle-lbl">Auto-detect subject</div><div class="toggle-sub">AI keeps the person centered</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="toggle-lbl">Smart reframe</div><div class="toggle-sub">Follow movement automatically</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="toggle-lbl">Preserve aspect ratio</div><div class="toggle-sub">No letterbox/pillarbox</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div class="card">
+          <div class="card-title">Export Settings</div>
+          <div class="field">
+            <label class="lbl">Quality</label>
+            <select>
+              <option>1080p Full HD</option>
+              <option>4K Ultra HD</option>
+              <option>720p HD</option>
+              <option>480p SD</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl">Format</label>
+            <select>
+              <option>MP4 (H.264)</option>
+              <option>MP4 (H.265)</option>
+              <option>MOV</option>
+              <option>WebM</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl">Frame rate</label>
+            <select>
+              <option>30 fps</option>
+              <option>60 fps</option>
+              <option>24 fps</option>
+            </select>
+          </div>
+          <button class="btn btn-primary w100" onclick="exportVideo()">⬇ Export Video</button>
+          <button class="btn w100 mt8" onclick="exportVideo(true)">📤 Export for All Selected Platforms</button>
+        </div>
+
+      </div><!-- /editor-sidebar -->
+    </div><!-- /editor-main -->
+  </div><!-- /editorSection -->
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: REPURPOSE
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-repurpose">
+  <div class="page-header">
+    <div><div class="page-title">Video Repurposing</div><div class="page-sub">Transform long-form videos into short, engaging clips</div></div>
+    <button class="btn btn-sm">View All</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card c1"><div class="stat-lbl">Clips Created</div><div class="stat-val" style="color:var(--accent)">142</div><div class="stat-chg">↑ +12 this week</div></div>
+    <div class="stat-card c2"><div class="stat-lbl">Videos Uploaded</div><div class="stat-val" style="color:var(--green)">38</div><div class="stat-chg">↑ +3 this week</div></div>
+    <div class="stat-card c3"><div class="stat-lbl">Hours Saved</div><div class="stat-val" style="color:var(--amber)">64h</div><div class="stat-chg">↑ vs manual editing</div></div>
+    <div class="stat-card c4"><div class="stat-lbl">Avg Engagement</div><div class="stat-val" style="color:var(--coral)">8.4%</div><div class="stat-chg">↑ +1.2% this month</div></div>
+  </div>
+  <div class="grid75">
+    <div class="card">
+      <div class="card-title">Recent Repurposed Clips</div>
+      <div class="video-row"><div class="vthumb p">🎬</div><div class="vinfo"><div class="vname">Q3 Webinar Highlights</div><div class="vmeta">6 clips · 45 min source · TikTok, Instagram</div></div><span class="badge bg-green">Done</span></div>
+      <div class="video-row"><div class="vthumb b">🎙</div><div class="vinfo"><div class="vname">Product Launch Keynote</div><div class="vmeta">12 clips · 1h 20min · Processing 68%</div></div><span class="badge bg-amber">Processing</span></div>
+      <div class="video-row"><div class="vthumb g">🎥</div><div class="vinfo"><div class="vname">CEO Interview — Tech Summit</div><div class="vmeta">4 clips · 22 min · LinkedIn, YouTube</div></div><span class="badge bg-green">Done</span></div>
+      <div class="video-row"><div class="vthumb r">📹</div><div class="vinfo"><div class="vname">Social Media Masterclass</div><div class="vmeta">9 clips · 58 min · Draft mode</div></div><span class="badge bg-purple">Draft</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="card-title">Quick Upload</div>
+        <div class="upload-zone" style="padding:20px" onclick="showPage('editor',document.querySelector('[onclick*=editor]'))">
+          <input type="file" accept="video/*" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+          <div style="font-size:24px;margin-bottom:6px">🎬</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:3px">Upload video</div>
+          <div style="font-size:11px;color:var(--text2)">Goes to editor</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Clip Formats</div>
+        <div class="flex justify-between items-center" style="padding:4px 0;font-size:12px"><span class="text2">9:16 Vertical</span><span class="badge bg-purple">58 clips</span></div>
+        <div class="flex justify-between items-center" style="padding:4px 0;font-size:12px"><span class="text2">1:1 Square</span><span class="badge bg-blue">41 clips</span></div>
+        <div class="flex justify-between items-center" style="padding:4px 0;font-size:12px"><span class="text2">16:9 Horizontal</span><span class="badge bg-green">43 clips</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: CAPTIONS
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-captions">
+  <div class="page-header">
+    <div><div class="page-title">Captions & Subtitles</div><div class="page-sub">Add text overlays for accessibility and higher engagement</div></div>
+  </div>
+  <div class="tabs"><div class="tab active" onclick="setTab(this)">Style Presets</div><div class="tab" onclick="setTab(this)">Custom Fonts</div><div class="tab" onclick="setTab(this)">Timing</div><div class="tab" onclick="setTab(this)">Languages</div></div>
+  <div class="grid2">
+    <div>
+      <div class="card mb12">
+        <div class="card-title">Preview</div>
+        <div class="caption-stage"><div class="caption-stage-bg"></div><div class="caption-txt" id="capText">Content is king! 🔥</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Style Presets</div>
+        <div class="grid2" style="gap:8px;margin-bottom:0">
+          <div style="background:#0a0a14;border:2px solid var(--accent);border-radius:var(--rs);padding:10px;text-align:center;cursor:pointer"><div style="color:#fff;font-size:13px;font-weight:900;font-family:'Syne',sans-serif">BOLD WHITE</div><div style="font-size:9px;color:var(--text3)">TikTok style</div></div>
+          <div style="background:#f0eeff;border:1px solid var(--border);border-radius:var(--rs);padding:10px;text-align:center;cursor:pointer" onclick="document.getElementById('capText').style.color='#6c63ff'"><div style="color:#6c63ff;font-size:13px;font-weight:700;font-family:'Syne',sans-serif">BRANDED</div><div style="font-size:9px;color:#999">Custom colors</div></div>
+          <div style="background:linear-gradient(135deg,#0a4d30,#00e5a0);border-radius:var(--rs);padding:10px;text-align:center;cursor:pointer" onclick="document.getElementById('capText').style.color='#00e5a0'"><div style="color:#fff;font-size:13px;font-weight:800;font-family:'Syne',sans-serif">GREEN POP</div><div style="font-size:9px;color:rgba(255,255,255,.6)">Instagram</div></div>
+          <div style="background:#111;border:1px solid rgba(255,215,0,.3);border-radius:var(--rs);padding:10px;text-align:center;cursor:pointer" onclick="document.getElementById('capText').style.color='#FFD700'"><div style="color:#FFD700;font-size:13px;font-weight:800;font-family:'Syne',sans-serif">CINEMATIC</div><div style="font-size:9px;color:#666">YouTube</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card mb12">
+        <div class="card-title">Customize</div>
+        <div class="field"><label class="lbl">Caption text</label><input type="text" value="Content is king! 🔥" oninput="document.getElementById('capText').textContent=this.value||'Preview'"></div>
+        <div class="field"><label class="lbl">Font size</label><div class="range-row"><input type="range" min="12" max="48" value="20" oninput="document.getElementById('capText').style.fontSize=this.value+'px';document.getElementById('capFs').textContent=this.value+'px'"><div class="range-val" id="capFs">20px</div></div></div>
+        <div class="field"><label class="lbl">Color</label><div class="color-row"><div class="color-dot sel" style="background:#fff" onclick="document.getElementById('capText').style.color='#fff';this.parentElement.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));this.classList.add('sel')"></div><div class="color-dot" style="background:#FFD700" onclick="document.getElementById('capText').style.color='#FFD700';this.parentElement.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));this.classList.add('sel')"></div><div class="color-dot" style="background:#6c63ff" onclick="document.getElementById('capText').style.color='#6c63ff';this.parentElement.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));this.classList.add('sel')"></div><div class="color-dot" style="background:#00e5a0" onclick="document.getElementById('capText').style.color='#00e5a0';this.parentElement.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));this.classList.add('sel')"></div><div class="color-dot" style="background:#ff5c5c" onclick="document.getElementById('capText').style.color='#ff5c5c';this.parentElement.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));this.classList.add('sel')"></div></div></div>
+        <div class="field"><label class="lbl">Position</label><select><option>Bottom center</option><option>Middle center</option><option>Top center</option></select></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Auto-Caption Settings</div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-lbl">Auto-transcribe on upload</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-lbl">Highlight speaker words</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-lbl">Multi-language support</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <button class="btn btn-primary w100 mt12">Apply to all clips</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: BRANDING
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-branding">
+  <div class="page-header"><div><div class="page-title">Branding Tools</div><div class="page-sub">Apply logos, colors, and templates consistently</div></div><button class="btn btn-primary btn-sm">Save Brand Kit</button></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Brand Kit</div>
+      <div class="field"><label class="lbl">Brand name</label><input type="text" value="ClipFlow Studio"></div>
+      <div class="field"><label class="lbl">Logo</label><div style="border:1.5px dashed var(--border2);border-radius:var(--rs);padding:20px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📁</div><div style="font-size:11px;color:var(--text2)">Upload logo (PNG, SVG)</div></div></div>
+      <div class="field"><label class="lbl">Brand colors</label><div class="color-row"><div class="color-dot" style="background:#6c63ff;outline:2px solid var(--text);outline-offset:2px"></div><div class="color-dot" style="background:#00e5a0"></div><div class="color-dot" style="background:#111"></div><div class="color-dot" style="background:#e879f9"></div><div class="color-dot" style="background:#ff5c5c"></div><div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text3)">+</div></div></div>
+      <div class="field"><label class="lbl">Watermark opacity</label><div class="range-row"><input type="range" min="10" max="100" value="60" oninput="document.getElementById('opVal').textContent=this.value+'%'"><div class="range-val" id="opVal">60%</div></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="card-title">Thumbnail Generator</div>
+        <div class="thumb-preview"><div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,99,255,.3),rgba(232,121,249,.2))"></div><div class="thumb-preview-text">YOUR HEADLINE<br><span style="font-size:11px;font-weight:400;opacity:.6">Subtitle here</span></div></div>
+        <div class="flex gap8"><button class="btn" style="flex:1;font-size:11px">Regenerate</button><button class="btn btn-primary" style="flex:1;font-size:11px">Download</button></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Templates</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="aspect-ratio:9/16;border-radius:6px;background:linear-gradient(135deg,#1a0033,#6c63ff);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid transparent;transition:border-color var(--trans)" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='transparent'">🌌</div>
+          <div style="aspect-ratio:9/16;border-radius:6px;background:linear-gradient(135deg,#001a0d,#00e5a0);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid var(--accent)">🌿</div>
+          <div style="aspect-ratio:9/16;border-radius:6px;background:linear-gradient(135deg,#1a0000,#ff5c5c);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid transparent;transition:border-color var(--trans)" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='transparent'">🔥</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: SCHEDULER
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-scheduler">
+  <div class="page-header"><div><div class="page-title">Publishing Scheduler</div><div class="page-sub">Post to multiple platforms from one dashboard</div></div><button class="btn btn-primary btn-sm">+ Schedule Post</button></div>
+  <div class="grid75">
+    <div>
+      <div class="card mb12">
+        <div class="card-title">Upcoming Posts</div>
+        <div class="sched-row"><div class="time-blk"><div class="time-h">9:00</div><div class="time-d">Today</div></div><div class="vinfo"><div class="vname">Product Clip #3</div><div class="vmeta">TikTok · Instagram Reels</div></div><span class="badge bg-green">Queued</span></div>
+        <div class="sched-row"><div class="time-blk"><div class="time-h">2:00</div><div class="time-d">Today</div></div><div class="vinfo"><div class="vname">CEO Quote Clip</div><div class="vmeta">LinkedIn · X (Twitter)</div></div><span class="badge bg-green">Queued</span></div>
+        <div class="sched-row"><div class="time-blk"><div class="time-h">10:30</div><div class="time-d">Tmrw</div></div><div class="vinfo"><div class="vname">Webinar Highlight #7</div><div class="vmeta">YouTube Shorts</div></div><span class="badge bg-purple">Draft</span></div>
+        <div class="sched-row"><div class="time-blk"><div class="time-h">4:00</div><div class="time-d">Thu</div></div><div class="vinfo"><div class="vname">Behind the Scenes</div><div class="vmeta">Instagram · Facebook</div></div><span class="badge bg-amber">Pending</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Platform Connections</div>
+        <div class="plat-row"><div class="plat-icon">🎵</div><div class="plat-name">TikTok</div><span class="badge bg-green">Connected</span></div>
+        <div class="plat-row"><div class="plat-icon">📸</div><div class="plat-name">Instagram</div><span class="badge bg-green">Connected</span></div>
+        <div class="plat-row"><div class="plat-icon">▶️</div><div class="plat-name">YouTube</div><span class="badge bg-green">Connected</span></div>
+        <div class="plat-row"><div class="plat-icon">💼</div><div class="plat-name">LinkedIn</div><span class="badge bg-coral">Auth expired</span></div>
+        <div class="plat-row"><div class="plat-icon">📘</div><div class="plat-name">Facebook</div><span class="badge bg-amber">Disconnected</span></div>
+        <button class="btn w100 mt12 text-sm">+ Connect Platform</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="card-title">Auto-Schedule</div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-lbl">Smart scheduling</div><div class="toggle-sub">AI picks best times</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-lbl">Evergreen recycling</div><div class="toggle-sub">Re-post top clips</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-lbl">Cross-post all formats</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: TEAM
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-team">
+  <div class="page-header"><div><div class="page-title">Team Collaboration</div><div class="page-sub">Shared workspace for managing projects and approvals</div></div><button class="btn btn-primary btn-sm">+ Invite</button></div>
+  <div class="grid75">
+    <div class="card">
+      <div class="card-title">Team Members</div>
+      <div class="team-row"><div class="avatar lg">JD</div><div class="vinfo"><div class="vname">Jane Doe</div><div class="vmeta">Admin · Owner · jane@company.com</div></div><span class="badge bg-purple">Admin</span></div>
+      <div class="team-row"><div class="avatar lg" style="background:linear-gradient(135deg,#00e5a0,#38bdf8)">MS</div><div class="vinfo"><div class="vname">Mark Santos</div><div class="vmeta">Editor · Video Team</div></div><span class="badge bg-green">Editor</span></div>
+      <div class="team-row"><div class="avatar lg" style="background:linear-gradient(135deg,#ff5c5c,#ffaa33)">AL</div><div class="vinfo"><div class="vname">Ana Lim</div><div class="vmeta">Reviewer · Marketing</div></div><span class="badge bg-amber">Reviewer</span></div>
+      <div class="team-row"><div class="avatar lg" style="background:linear-gradient(135deg,#e879f9,#ff5c5c)">CR</div><div class="vinfo"><div class="vname">Carlos Reyes</div><div class="vmeta">Viewer · Stakeholder</div></div><span class="badge bg-blue">Viewer</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="card-title">Pending Approvals</div>
+        <div class="video-row"><div class="vthumb p">🎬</div><div class="vinfo"><div class="vname">Webinar Clip #4</div><div class="vmeta">Waiting on Ana Lim</div></div><button class="btn btn-sm">Review</button></div>
+        <div class="video-row"><div class="vthumb r">📽</div><div class="vinfo"><div class="vname">Brand Intro v2</div><div class="vmeta">Waiting on Mark</div></div><button class="btn btn-sm">Review</button></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Activity</div>
+        <div class="notif-item"><div class="ndot" style="background:var(--green)"></div><div><div style="font-size:11px">Mark published 3 clips</div><div style="font-size:10px;color:var(--text3)">2 hours ago</div></div></div>
+        <div class="notif-item"><div class="ndot" style="background:var(--amber)"></div><div><div style="font-size:11px">Ana requested edits on Clip #4</div><div style="font-size:10px;color:var(--text3)">4 hours ago</div></div></div>
+        <div class="notif-item" style="border:none"><div class="ndot" style="background:var(--accent)"></div><div><div style="font-size:11px">Carlos viewed Brand Story</div><div style="font-size:10px;color:var(--text3)">Yesterday</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: AUDIO
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-audio">
+  <div class="page-header"><div><div class="page-title">Audio & Voice Options</div><div class="page-sub">Enhance sound quality and add voice-over narration</div></div></div>
+  <div class="grid2">
+    <div>
+      <div class="card mb12">
+        <div class="card-title">Audio Enhancement</div>
+        <div class="card" style="background:var(--bg3);border-color:var(--border);padding:12px;margin-bottom:14px">
+          <div class="flex justify-between items-center mb12"><div style="font-size:12px;font-weight:500">Live Preview</div><span class="badge bg-green">🎵 Active</span></div>
+          <div class="audio-bars" id="audioBars"></div>
+        </div>
+        <div class="field"><label class="lbl">Noise reduction</label><div class="range-row"><input type="range" min="0" max="100" value="70" oninput="document.getElementById('noiseV').textContent=this.value+'%'"><div class="range-val" id="noiseV">70%</div></div></div>
+        <div class="field"><label class="lbl">Volume boost</label><div class="range-row"><input type="range" min="-12" max="12" value="3" oninput="document.getElementById('volV').textContent=(this.value>=0?'+':'')+this.value+'dB'"><div class="range-val" id="volV">+3dB</div></div></div>
+        <div class="field"><label class="lbl">Clarity boost</label><div class="range-row"><input type="range" min="0" max="100" value="50" oninput="document.getElementById('clarV').textContent=this.value+'%'"><div class="range-val" id="clarV">50%</div></div></div>
+        <button class="btn btn-primary w100">Apply Enhancement</button>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Voice-Over Narration</div>
+        <div class="field"><label class="lbl">Voice type</label><select><option>Natural Female (US)</option><option>Natural Male (US)</option><option>Energetic</option><option>Professional</option><option>Custom upload...</option></select></div>
+        <div class="field"><label class="lbl">Speaking speed</label><div class="range-row"><input type="range" min="50" max="200" value="100" oninput="document.getElementById('spV').textContent=this.value+'%'"><div class="range-val" id="spV">100%</div></div></div>
+        <div class="field"><label class="lbl">Script</label><textarea rows="5" placeholder="Type narration script here..."></textarea></div>
+        <div class="flex gap8"><button class="btn" style="flex:1;font-size:11px">Preview</button><button class="btn btn-primary" style="flex:1;font-size:11px">Generate</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: ANALYTICS
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-analytics">
+  <div class="page-header"><div><div class="page-title">Analytics</div><div class="page-sub">Track performance across all platforms</div></div><button class="btn btn-sm">Export Report</button></div>
+  <div class="stats-grid">
+    <div class="stat-card c1"><div class="stat-lbl">Total Views</div><div class="stat-val" style="color:var(--accent)">284K</div><div class="stat-chg">↑ +18% this month</div></div>
+    <div class="stat-card c2"><div class="stat-lbl">Clips Published</div><div class="stat-val" style="color:var(--green)">89</div><div class="stat-chg">↑ +14 this week</div></div>
+    <div class="stat-card c3"><div class="stat-lbl">Avg Watch Time</div><div class="stat-val" style="color:var(--amber)">34s</div><div class="stat-chg">↑ +4s vs last month</div></div>
+    <div class="stat-card c4"><div class="stat-lbl">Total Shares</div><div class="stat-val" style="color:var(--coral)">1.2K</div><div class="stat-chg">↑ +22% growth</div></div>
+  </div>
+  <div class="card mb16">
+    <div class="flex justify-between items-center mb12"><div class="card-title" style="margin:0">Views Over Time</div><span class="badge bg-purple">Last 7 days</span></div>
+    <div class="chart-wrap" id="analyticsChart"></div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px">
+      <div class="chart-lbl">Mon</div><div class="chart-lbl">Tue</div><div class="chart-lbl">Wed</div><div class="chart-lbl">Thu</div><div class="chart-lbl">Fri</div><div class="chart-lbl">Sat</div><div class="chart-lbl">Sun</div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Top Performing Clips</div>
+      <div class="video-row"><div class="vthumb p">🏆</div><div class="vinfo"><div class="vname">Product Launch Clip #2</div><div class="vmeta">TikTok · 42K views · 11.2% CTR</div></div><span class="badge bg-green">↑ 11.2%</span></div>
+      <div class="video-row"><div class="vthumb b">🥈</div><div class="vinfo"><div class="vname">CEO Quote — Summit</div><div class="vmeta">LinkedIn · 29K views · 9.8% CTR</div></div><span class="badge bg-purple">↑ 9.8%</span></div>
+      <div class="video-row"><div class="vthumb g">🥉</div><div class="vinfo"><div class="vname">Webinar Highlight #1</div><div class="vmeta">YouTube · 58K views · 8.4% CTR</div></div><span class="badge bg-green">↑ 8.4%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Platform Breakdown</div>
+      <div class="prog-row"><div class="prog-lbl">🎵 TikTok</div><div class="prog-bar"><div class="prog-fill" style="width:38%;background:var(--accent)"></div></div><div class="prog-pct">38%</div></div>
+      <div class="prog-row"><div class="prog-lbl">📸 Instagram</div><div class="prog-bar"><div class="prog-fill" style="width:27%;background:var(--coral)"></div></div><div class="prog-pct">27%</div></div>
+      <div class="prog-row"><div class="prog-lbl">▶️ YouTube</div><div class="prog-bar"><div class="prog-fill" style="width:21%;background:var(--coral)"></div></div><div class="prog-pct">21%</div></div>
+      <div class="prog-row"><div class="prog-lbl">💼 LinkedIn</div><div class="prog-bar"><div class="prog-fill" style="width:14%;background:var(--blue)"></div></div><div class="prog-pct">14%</div></div>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+const pageTitles = {editor:'Video Editor',repurpose:'Video Repurposing',captions:'Captions & Subtitles',branding:'Branding Tools',scheduler:'Publishing Scheduler',team:'Team Collaboration',audio:'Audio & Voice',analytics:'Analytics'};
+
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbar-title').textContent = pageTitles[name] || name;
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function setTab(el) {
+  el.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════
+   VIDEO EDITOR
+═══════════════════════════════════════════ */
+let videoLoaded = false;
+let isPlaying = false;
+let isMuted = false;
+let isFlipped = false;
+let trimIn = 0;
+let trimOut = null; // null = full video
+let currentSpeed = 1;
+let autoCropActive = false;
+let autoCropAnimId = null;
+let currentPreset = {ratio:'9:16', name:'TikTok', platforms:'TikTok · Reels · Shorts', size:'1080×1920', id:'tiktok'};
+
+// ── Helpers ──
+function formatTime(s) {
+  if (!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+function getVideo() { return document.getElementById('videoEl'); }
+
+// ── File Upload ──
+function handleFileUpload(e) {
+  const files = e && e.target ? e.target.files : e instanceof FileList ? e : null;
+  const file = files && files[0];
+  if (!file) return;
+  if (!file.type.startsWith('video/')) {
+    showToast('⚠️ Not a video file. Please choose MP4, MOV, WebM, etc.');
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  loadVideoIntoEditor(url, file.name);
+}
+
+// Wire up file input after DOM ready
+window.addEventListener('DOMContentLoaded', () => {
+  const fi = document.getElementById('fileInput');
+  if (fi) fi.addEventListener('change', handleFileUpload);
+});
+
+// ── URL Import ──
+function handleUrlImport() {
+  const url = document.getElementById('videoUrlInput').value.trim();
+  if (!url) { showToast('⚠️ Please enter a URL first.'); return; }
+
+  const ytMatch    = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+
+  if (ytMatch) {
+    // YouTube → embedded iframe player (full controls, playable)
+    loadEmbedVideo(
+      `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&controls=1&rel=0`,
+      'YouTube Video', '▶️'
+    );
+  } else if (vimeoMatch) {
+    // Vimeo → embedded iframe player
+    loadEmbedVideo(
+      `https://player.vimeo.com/video/${vimeoMatch[1]}?title=0&byline=0`,
+      'Vimeo Video', '🎬'
+    );
+  } else if (url.match(/\.(mp4|webm|ogg|mov|avi|mkv)(\?.*)?$/i)) {
+    // Direct video file URL
+    loadVideoIntoEditor(url, url.split('/').pop().split('?')[0] || 'video.mp4');
+  } else if (url.match(/tiktok\.com|instagram\.com|facebook\.com|twitter\.com|x\.com/)) {
+    showToast('⚠️ TikTok/Instagram/X require a direct .mp4 link. Right-click the video → Copy video address.');
+  } else {
+    // Unknown URL — try as direct video, fall back gracefully
+    loadVideoIntoEditor(url, 'imported-video.mp4');
+  }
+}
+
+// ── Load embedded iframe (YouTube / Vimeo) ──
+function loadEmbedVideo(embedUrl, title, icon) {
+  const stage = document.getElementById('videoStage');
+  stage.innerHTML = `
+    <iframe
+      src="${embedUrl}"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;z-index:1;background:#000"
+      allow="autoplay; fullscreen; picture-in-picture"
+      allowfullscreen></iframe>
+    <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:10px 14px;display:flex;align-items:center;justify-content:space-between;pointer-events:none">
+      <span style="font-size:11px;color:rgba(255,255,255,.7)">${icon} ${title} — use the embedded player controls</span>
+    </div>`;
+  showEditorUI(title, true);
+  showToast(`✅ ${title} loaded! Use the player controls inside the video.`);
+}
+
+// ── Build the video stage shell ──
+function buildStage(src) {
+  const stage = document.getElementById('videoStage');
+  stage.innerHTML = `
+    <div id="vidLoadingMsg" style="position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#111;gap:12px">
+      <div style="width:38px;height:38px;border:3px solid #333;border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+      <div id="loadingLabel" style="font-size:12px;color:#888">Loading video…</div>
+    </div>
+    <video id="videoEl" playsinline preload="auto"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:1;display:none"
+      src="${src}"></video>
+    <div id="videoOverlay" onclick="togglePlay()"
+      style="position:absolute;inset:0;z-index:3;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.22);cursor:pointer">
+      <div class="play-icon">▶</div>
+    </div>
+    <div class="crop-frame-wrap" id="cropFrameWrap"
+      style="position:absolute;inset:0;z-index:2;pointer-events:none;display:flex;align-items:center;justify-content:center">
+      <div class="crop-frame" id="cropFrame" style="width:160px;height:284px">
+        <div class="crop-label" id="cropLabel">9:16 · TikTok</div>
+      </div>
+    </div>`;
+  return document.getElementById('videoEl');
+}
+
+// ── Attach all video event listeners ──
+function attachVideoEvents(video) {
+  video.oncanplay = () => {
+    const loader = document.getElementById('vidLoadingMsg');
+    if (loader) loader.style.display = 'none';
+    video.style.display = 'block';
+    const ov = document.getElementById('videoOverlay');
+    if (ov) ov.style.display = 'flex';
+    updateCropFrame(currentPreset.ratio, currentPreset.name);
+    showToast('✅ Video ready — press ▶ to play!');
+    initTrimBar();
+  };
+
+  video.onloadedmetadata = () => {
+    trimOut = video.duration;
+    const dur = formatTime(video.duration);
+    const g = id => document.getElementById(id);
+    if (g('viDur'))        g('viDur').textContent = dur;
+    if (g('tcTime'))       g('tcTime').textContent = '0:00 / ' + dur;
+    if (g('clipDurBadge')) { g('clipDurBadge').textContent = 'Full video'; g('clipDurBadge').className = 'badge bg-purple'; }
+    updateSeekBar(0);
+  };
+
+  video.ontimeupdate = () => {
+    if (!video.duration) return;
+    if (trimOut !== null && video.currentTime >= trimOut) {
+      video.pause(); video.currentTime = trimIn;
+    }
+    const pct = (video.currentTime / video.duration) * 100;
+    updateSeekBar(pct);
+    updateTrimPlayhead(pct);
+    const el = document.getElementById('tcTime');
+    if (el) el.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+  };
+
+  video.onplay  = () => { isPlaying = true;  updatePlayIcon(false); hideOverlay(); };
+  video.onpause = () => { isPlaying = false; updatePlayIcon(true);  showOverlay(); };
+  video.onended = () => {
+    isPlaying = false; updatePlayIcon(true);
+    video.currentTime = 0; updateSeekBar(0); showOverlay();
+  };
+
+  video.onclick = () => togglePlay();
+}
+
+// ── Show CORS error with helpful options ──
+function showVideoError(stage, originalUrl) {
+  stage.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;padding:24px;text-align:center;background:#0d0d0d">
+      <div style="font-size:38px">⚠️</div>
+      <div style="font-size:14px;font-weight:700;color:#f87171">Could not load video</div>
+      <div style="font-size:12px;color:#888;max-width:300px;line-height:1.7">
+        The server doesn't allow direct video loading (CORS restriction).<br><br>
+        <strong style="color:#ccc">Try one of these instead:</strong>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:280px">
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+          📁 Upload video file from your device
+        </button>
+        <button class="btn" onclick="resetEditor()">
+          🔗 Try a different URL
+        </button>
+        <a href="${originalUrl}" download target="_blank"
+          style="font-size:11px;color:var(--accent);text-decoration:none;margin-top:4px">
+          ⬇ Try downloading the video first →
+        </a>
+      </div>
+    </div>`;
+}
+
+// ── Load direct video file — with proxy fallback ──
+function loadVideoIntoEditor(src, filename) {
+  const stage = document.getElementById('videoStage');
+  const isBlob = src.startsWith('blob:');
+
+  // Reset state
+  isMuted = false; isFlipped = false; trimIn = 0; trimOut = null;
+  currentSpeed = 1; autoCropActive = false;
+  cancelAnimationFrame(autoCropAnimId);
+  showEditorUI(filename, false);
+
+  // Blob URLs (file uploads) always work — load directly
+  if (isBlob) {
+    const video = buildStage(src);
+    attachVideoEvents(video);
+    return;
+  }
+
+  // For remote URLs: try direct first, fall back to CORS proxy
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(src);
+  let triedProxy = false;
+
+  function tryLoad(url, label) {
+    const video = buildStage(url);
+    const lbl = document.getElementById('loadingLabel');
+    if (lbl) lbl.textContent = label;
+
+    attachVideoEvents(video);
+
+    // Override onerror to try proxy before giving up
+    video.onerror = () => {
+      if (!triedProxy && !isBlob) {
+        triedProxy = true;
+        const lbl2 = document.getElementById('loadingLabel');
+        if (lbl2) lbl2.textContent = 'Retrying via proxy…';
+        const v2 = buildStage(proxyUrl);
+        attachVideoEvents(v2);
+        v2.onerror = () => showVideoError(stage, src);
+      } else {
+        showVideoError(stage, src);
+      }
+    };
+  }
+
+  tryLoad(src, 'Loading video…');
+}
+
+
+
+function showOverlay() {
+  const ov = document.getElementById('videoOverlay');
+  if (ov) ov.style.display = 'flex';
+}
+function hideOverlay() {
+  const ov = document.getElementById('videoOverlay');
+  if (ov) ov.style.display = 'none';
+}
+
+function showEditorUI(filename, isEmbed) {
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('editorSection').style.display = 'block';
+  document.getElementById('viName').textContent = filename;
+  document.getElementById('resetBtn').style.display = 'inline-flex';
+  document.getElementById('exportBtn').style.display = 'inline-flex';
+  const tcTime = document.getElementById('tcTime');
+  const viDur  = document.getElementById('viDur');
+  if (isEmbed) {
+    if (viDur)  viDur.textContent  = 'Embed';
+    if (tcTime) tcTime.textContent = 'Embed mode';
+    document.querySelectorAll('.vp-btn').forEach(b => b.style.opacity = '.4');
+  } else {
+    document.querySelectorAll('.vp-btn').forEach(b => b.style.opacity = '1');
+  }
+  videoLoaded = true;
+  if (!isEmbed) updateCropFrame(currentPreset.ratio, currentPreset.name);
+}
+
+function resetEditor() {
+  const video = getVideo();
+  if (video) { video.pause(); video.src = ''; }
+  cancelAnimationFrame(autoCropAnimId);
+  isPlaying = false; videoLoaded = false; isMuted = false; isFlipped = false;
+  trimIn = 0; trimOut = null; currentSpeed = 1; autoCropActive = false;
+
+  document.getElementById('uploadSection').style.display = 'block';
+  document.getElementById('editorSection').style.display = 'none';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('exportBtn').style.display = 'none';
+  document.getElementById('videoUrlInput').value = '';
+  try { document.getElementById('fileInput').value = ''; } catch(e) {}
+
+  const stage = document.getElementById('videoStage');
+  stage.innerHTML = '';
+}
+
+// ── Sample Videos ──
+function loadSample(type) {
+  const samples = {
+    product:   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    webinar:   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    interview: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+    tutorial:  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+  };
+  const names = {product:'product-demo.mp4', webinar:'webinar-clip.mp4',
+    interview:'ceo-interview.mp4', tutorial:'tutorial.mp4'};
+  showProcessing('Loading sample video...', 'Fetching from server', 1000, () => {
+    loadVideoIntoEditor(samples[type], names[type]);
+  });
+}
+
+// ── Playback Controls ──
+function togglePlay() {
+  const video = getVideo();
+  if (!video || !video.src) return;
+  if (video.paused) {
+    if (trimOut !== null && video.currentTime >= trimOut) video.currentTime = trimIn;
+    video.play().catch(() => {});
+  } else {
+    video.pause();
+  }
+}
+
+function skipTime(s) {
+  const video = getVideo();
+  if (!video || !video.src || !video.duration) return;
+  video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + s));
+}
+
+// ── Seek bar drag ──
+let seeking = false;
+function getSeekPct(clientX) {
+  const track = document.getElementById('seekTrack');
+  if (!track) return 0;
+  const rect = track.getBoundingClientRect();
+  return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+}
+function applySeek(pct) {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  video.currentTime = pct * video.duration;
+  updateSeekBar(pct * 100);
+}
+function seekStart(e) {
+  seeking = true;
+  applySeek(getSeekPct(e.clientX));
+  document.addEventListener('mousemove', seekMove);
+  document.addEventListener('mouseup', seekEnd);
+}
+function seekMove(e) { if (seeking) applySeek(getSeekPct(e.clientX)); }
+function seekEnd()   { seeking = false; document.removeEventListener('mousemove', seekMove); document.removeEventListener('mouseup', seekEnd); }
+function seekTouchStart(e) {
+  seeking = true;
+  applySeek(getSeekPct(e.touches[0].clientX));
+  document.addEventListener('touchmove', seekTouchMove, {passive:true});
+  document.addEventListener('touchend',  seekTouchEnd);
+}
+function seekTouchMove(e) { if (seeking) applySeek(getSeekPct(e.touches[0].clientX)); }
+function seekTouchEnd()   { seeking = false; }
+
+function updateSeekBar(pct) {
+  const fill  = document.getElementById('seekFill');
+  const thumb = document.getElementById('seekThumb');
+  if (fill)  fill.style.width = pct + '%';
+  if (thumb) thumb.style.left = pct + '%';
+}
+
+// ── Volume ──
+function setVolume(val) {
+  const video = getVideo();
+  if (!video) return;
+  video.volume = val;
+  isMuted = (val == 0);
+  video.muted = isMuted;
+  updateVolIcon();
+}
+
+// ── Mute button in player bar ──
+function toggleMuteBtn() {
+  const video = getVideo();
+  if (!video) return;
+  isMuted = !isMuted;
+  video.muted = isMuted;
+  if (!isMuted && video.volume === 0) { video.volume = 0.8; document.getElementById('volSlider').value = 0.8; }
+  updateVolIcon();
+}
+
+function updateVolIcon() {
+  const video = getVideo();
+  const muted = !video || video.muted || video.volume === 0;
+  const iconVol  = document.getElementById('iconVol');
+  const iconMute = document.getElementById('iconMute');
+  if (iconVol)  iconVol.style.display  = muted ? 'none' : '';
+  if (iconMute) iconMute.style.display = muted ? '' : 'none';
+}
+
+// ── Fullscreen ──
+function toggleFullscreen() {
+  const stage = document.getElementById('videoStage');
+  if (!stage) return;
+  if (!document.fullscreenElement) {
+    stage.requestFullscreen && stage.requestFullscreen();
+  } else {
+    document.exitFullscreen && document.exitFullscreen();
+  }
+}
+
+// ── Play/pause icon swap ──
+function updatePlayIcon(paused) {
+  const iconPlay  = document.getElementById('iconPlay');
+  const iconPause = document.getElementById('iconPause');
+  if (iconPlay)  iconPlay.style.display  = paused ? '' : 'none';
+  if (iconPause) iconPause.style.display = paused ? 'none' : '';
+}
+
+// ════════════════════════════════════
+// TRIM SYSTEM
+// ════════════════════════════════════
+let trimDragging = null; // 'in' | 'out' | null
+
+// Called after video loads — init trim bar
+function initTrimBar() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  trimIn  = 0;
+  trimOut = video.duration;
+  renderTrimBar();
+  const inp = document.getElementById('trimInInput');
+  const outp = document.getElementById('trimOutInput');
+  if (inp)  inp.value  = formatTime(0);
+  if (outp) outp.value = formatTime(video.duration);
+  updateTrimLabel();
+}
+
+// Update the visual trim bar to reflect trimIn / trimOut
+function renderTrimBar() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  const dur = video.duration;
+  const pctIn  = (trimIn  / dur) * 100;
+  const pctOut = (trimOut / dur) * 100;
+
+  const shadeL  = document.getElementById('trimShadeL');
+  const shadeR  = document.getElementById('trimShadeR');
+  const active  = document.getElementById('trimActive');
+  const handleL = document.getElementById('trimHandleL');
+  const handleR = document.getElementById('trimHandleR');
+
+  if (shadeL)  shadeL.style.width  = pctIn + '%';
+  if (shadeR)  shadeR.style.width  = (100 - pctOut) + '%';
+  if (active)  { active.style.left = pctIn + '%'; active.style.width = (pctOut - pctIn) + '%'; }
+  if (handleL) handleL.style.left  = 'calc(' + pctIn  + '% - 8px)';
+  if (handleR) handleR.style.right = 'calc(' + (100 - pctOut) + '% - 8px)';
+
+  // Update time inputs
+  const inp  = document.getElementById('trimInInput');
+  const outp = document.getElementById('trimOutInput');
+  if (inp)  inp.value  = formatTime(trimIn);
+  if (outp) outp.value = formatTime(trimOut);
+  updateTrimLabel();
+}
+
+// Update the playhead inside trim bar
+function updateTrimPlayhead(pct) {
+  const ph = document.getElementById('trimPlayhead');
+  if (ph) ph.style.left = pct + '%';
+}
+
+// Update the "0:12 → 1:45 (1:33)" label
+function updateTrimLabel() {
+  const video = getVideo();
+  const lbl = document.getElementById('trimRangeLabel');
+  if (!lbl) return;
+  if (!video || !video.duration || (trimIn === 0 && trimOut === video.duration)) {
+    lbl.textContent = 'Full video';
+  } else {
+    const dur = trimOut - trimIn;
+    lbl.textContent = formatTime(trimIn) + ' → ' + formatTime(trimOut) + ' (' + formatTime(dur) + ')';
+  }
+  const badge = document.getElementById('clipDurBadge');
+  if (badge) {
+    if (!video || !video.duration || (trimIn === 0 && trimOut === video.duration)) {
+      badge.textContent = 'Full video'; badge.className = 'badge bg-purple';
+    } else {
+      badge.textContent = formatTime(trimIn) + ' → ' + formatTime(trimOut);
+      badge.className = 'badge bg-green';
+    }
+  }
+}
+
+// ── Drag handles ──
+function trimDragStart(e, which) {
+  e.preventDefault();
+  trimDragging = which;
+  document.addEventListener('mousemove', trimDragMove);
+  document.addEventListener('mouseup',   trimDragEnd);
+}
+function trimTouchStart(e, which) {
+  trimDragging = which;
+  document.addEventListener('touchmove', trimTouchMove, {passive:false});
+  document.addEventListener('touchend',  trimTouchEnd);
+}
+function getTrimPct(clientX) {
+  const track = document.getElementById('trimTrack');
+  if (!track) return 0;
+  const rect = track.getBoundingClientRect();
+  return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+}
+function applyTrimDrag(clientX) {
+  const video = getVideo();
+  if (!video || !video.duration || !trimDragging) return;
+  const pct = getTrimPct(clientX);
+  const t   = pct * video.duration;
+  if (trimDragging === 'in') {
+    trimIn = Math.min(t, trimOut - 0.5);
+    trimIn = Math.max(0, trimIn);
+    // Snap video to new in point for preview
+    if (video.currentTime < trimIn) video.currentTime = trimIn;
+  } else {
+    trimOut = Math.max(t, trimIn + 0.5);
+    trimOut = Math.min(video.duration, trimOut);
+    if (video.currentTime > trimOut) video.currentTime = trimOut;
+  }
+  renderTrimBar();
+}
+function trimDragMove(e)  { applyTrimDrag(e.clientX); }
+function trimDragEnd()    { trimDragging = null; document.removeEventListener('mousemove', trimDragMove); document.removeEventListener('mouseup', trimDragEnd); showToast('✂️ Trim updated — press Apply to confirm'); }
+function trimTouchMove(e) { e.preventDefault(); applyTrimDrag(e.touches[0].clientX); }
+function trimTouchEnd()   { trimDragging = null; document.removeEventListener('touchmove', trimTouchMove); document.removeEventListener('touchend', trimTouchEnd); showToast('✂️ Trim updated — press Apply to confirm'); }
+
+// ── Set in/out at current playhead ──
+function setTrimInNow() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  trimIn = Math.min(video.currentTime, trimOut - 0.5);
+  renderTrimBar();
+  showToast('▶ In-point set at ' + formatTime(trimIn));
+}
+function setTrimOutNow() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  trimOut = Math.max(video.currentTime, trimIn + 0.5);
+  renderTrimBar();
+  showToast('⏹ Out-point set at ' + formatTime(trimOut));
+}
+
+// ── Parse "m:ss" or plain seconds from input ──
+function parseTimeInput(str) {
+  str = str.trim();
+  if (str.includes(':')) {
+    const parts = str.split(':');
+    return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
+  }
+  return parseFloat(str) || 0;
+}
+
+// ── Apply trim from text inputs ──
+function applyTrimInputs() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  const inVal  = parseTimeInput(document.getElementById('trimInInput').value);
+  const outVal = parseTimeInput(document.getElementById('trimOutInput').value);
+  trimIn  = Math.max(0, Math.min(inVal,  video.duration - 0.5));
+  trimOut = Math.max(trimIn + 0.5, Math.min(outVal, video.duration));
+  renderTrimBar();
+  showToast('✂️ Trim set: ' + formatTime(trimIn) + ' → ' + formatTime(trimOut));
+}
+
+// ── Preview trim: play from in to out ──
+function previewTrim() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  video.currentTime = trimIn;
+  video.play().catch(() => {});
+  showToast('▶ Previewing trim: ' + formatTime(trimIn) + ' → ' + formatTime(trimOut));
+}
+
+// ── Apply trim (locks range) ──
+function applyTrim() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  if (trimIn >= trimOut) { showToast('⚠️ Start must be before end'); return; }
+  video.currentTime = trimIn;
+  updateTrimLabel();
+  showToast('✅ Trim applied: ' + formatTime(trimIn) + ' → ' + formatTime(trimOut) + ' (' + formatTime(trimOut - trimIn) + ')');
+}
+
+// ── Reset trim to full video ──
+function resetTrim() {
+  const video = getVideo();
+  if (!video || !video.duration) return;
+  trimIn  = 0;
+  trimOut = video.duration;
+  renderTrimBar();
+  showToast('↺ Trim reset — full video');
+}
+
+// Legacy alias
+function trimVideo() { applyTrim(); }
+
+// ── Mute (Quick Tools button) ──
+function toggleMute() {
+  toggleMuteBtn();
+  const video = getVideo();
+  showToast(video && video.muted ? '🔇 Audio muted' : '🔊 Audio restored');
+}
+
+// ── Speed ──
+let speedIndex = 0;
+const speedSteps = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const speedLabels = ['0.5×', '0.75×', '1×', '1.25×', '1.5×', '2×'];
+function cycleSpeed() {
+  const video = getVideo();
+  if (!video) return;
+  speedIndex = (speedIndex + 1) % speedSteps.length;
+  currentSpeed = speedSteps[speedIndex];
+  video.playbackRate = currentSpeed;
+  showToast(`⚡ Speed: ${speedLabels[speedIndex]}`);
+}
+
+// ── Flip ──
+function toggleFlip() {
+  const video = getVideo();
+  if (!video) return;
+  isFlipped = !isFlipped;
+  video.style.transform = isFlipped ? 'scaleX(-1)' : '';
+  showToast(isFlipped ? '↔️ Video flipped horizontally' : '↔️ Flip removed');
+}
+
+// ── Adjust Panel ──
+let brightnessVal = 100, contrastVal = 100, saturationVal = 100;
+function showAdjustPanel() {
+  if (document.getElementById('adjustPanel')) { document.getElementById('adjustPanel').remove(); return; }
+  const panel = document.createElement('div');
+  panel.id = 'adjustPanel';
+  panel.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;z-index:500;width:300px;box-shadow:0 12px 40px rgba(0,0,0,.6)';
+  panel.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+      ☀️ Adjust <span onclick="document.getElementById('adjustPanel').remove()" style="cursor:pointer;color:var(--text3);font-size:16px">✕</span></div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Brightness <span id="brtLbl">${brightnessVal}%</span></div>
+      <input type="range" min="0" max="200" value="${brightnessVal}" oninput="brightnessVal=+this.value;document.getElementById('brtLbl').textContent=this.value+'%';applyFilters()">
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Contrast <span id="ctrLbl">${contrastVal}%</span></div>
+      <input type="range" min="0" max="200" value="${contrastVal}" oninput="contrastVal=+this.value;document.getElementById('ctrLbl').textContent=this.value+'%';applyFilters()">
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Saturation <span id="satLbl">${saturationVal}%</span></div>
+      <input type="range" min="0" max="200" value="${saturationVal}" oninput="saturationVal=+this.value;document.getElementById('satLbl').textContent=this.value+'%';applyFilters()">
+    </div>
+    <button class="btn btn-sm mt8" onclick="brightnessVal=100;contrastVal=100;saturationVal=100;applyFilters();document.getElementById('brtLbl').textContent='100%';document.getElementById('ctrLbl').textContent='100%';document.getElementById('satLbl').textContent='100%';showToast('☀️ Adjustments reset')">Reset</button>`;
+  document.body.appendChild(panel);
+}
+function applyFilters() {
+  const video = getVideo();
+  if (!video) return;
+  video.style.filter = `brightness(${brightnessVal}%) contrast(${contrastVal}%) saturate(${saturationVal}%)`;
+}
+
+// ── Auto Crop ──
+function applyAutoCrop() {
+  if (!videoLoaded) { showToast('⚠️ Load a video first.'); return; }
+  showProcessing('Analyzing video...', 'AI detecting subjects & movement', 2200, () => {
+    autoCropActive = true;
+    animateAutoCrop();
+    showToast('🤖 Auto-crop active! Subject tracked & centered.');
+  });
+}
+
+function animateAutoCrop() {
+  // Animate the crop frame gently left/right to simulate subject tracking
+  const frame = document.getElementById('cropFrame');
+  const wrap = document.getElementById('cropFrameWrap');
+  if (!frame || !wrap || !autoCropActive) return;
+
+  let t = 0;
+  function tick() {
+    if (!autoCropActive) { frame.style.transform = ''; return; }
+    t += 0.015;
+    const dx = Math.sin(t * 1.3) * 18;
+    const dy = Math.cos(t * 0.8) * 8;
+    frame.style.transform = `translate(${dx}px, ${dy}px)`;
+    autoCropAnimId = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+// ── Crop Presets ──
+function selectPreset(el, ratio, name, platforms, size, id) {
+  autoCropActive = false;
+  cancelAnimationFrame(autoCropAnimId);
+  const frame = document.getElementById('cropFrame');
+  if (frame) frame.style.transform = '';
+
+  document.querySelectorAll('#presetGrid .preset-card').forEach(c => {
+    c.classList.remove('sel');
+    const r = c.querySelector('.preset-ratio');
+    if (r) r.style.color = 'var(--text2)';
+  });
+  el.classList.add('sel');
+  const ratioEl = el.querySelector('.preset-ratio');
+  if (ratioEl) ratioEl.style.color = 'var(--accent)';
+
+  currentPreset = {ratio, name, platforms, size, id};
+  document.getElementById('formatRatioLg').textContent = ratio;
+  document.getElementById('formatNameLg').textContent = name;
+  document.getElementById('formatSizeLg').textContent = size.replace('×', ' × ') + ' px';
+  document.getElementById('formatPlatsLg').textContent = platforms;
+
+  updateCropFrame(ratio, name);
+  showToast(`📐 ${ratio} — ${name} selected`);
+}
+
+function updateCropFrame(ratio, label) {
+  const frame = document.getElementById('cropFrame');
+  const cropLabel = document.getElementById('cropLabel');
+  const stage = document.getElementById('videoStage');
+  if (!frame || !stage) return;
+
+  const stageW = stage.clientWidth  || 400;
+  const stageH = stage.clientHeight || 360;
+  const margin = 0.82;
+  const [rw, rh] = ratio.split(':').map(Number);
+  let fw, fh;
+  if (rw / rh > stageW / stageH) {
+    fw = stageW * margin; fh = fw * rh / rw;
+  } else {
+    fh = stageH * margin; fw = fh * rw / rh;
+  }
+  frame.style.width  = Math.round(fw) + 'px';
+  frame.style.height = Math.round(fh) + 'px';
+  if (cropLabel) cropLabel.textContent = `${ratio} · ${label}`;
+}
+
+function applyCustomSize() {
+  const w = parseInt(document.getElementById('customW').value) || 1080;
+  const h = parseInt(document.getElementById('customH').value) || 1920;
+  const gcd = (a, b) => b ? gcd(b, a % b) : a;
+  const g = gcd(w, h);
+  const ratio = `${w/g}:${h/g}`;
+  document.querySelectorAll('#presetGrid .preset-card').forEach(c => {
+    c.classList.remove('sel');
+    const r = c.querySelector('.preset-ratio');
+    if (r) r.style.color = 'var(--text2)';
+  });
+  currentPreset = {ratio, name:'Custom', platforms:'Custom size', size:`${w}×${h}`, id:'custom'};
+  document.getElementById('formatRatioLg').textContent = ratio;
+  document.getElementById('formatNameLg').textContent = 'Custom';
+  document.getElementById('formatSizeLg').textContent = `${w} × ${h} px`;
+  document.getElementById('formatPlatsLg').textContent = 'Custom dimensions';
+  updateCropFrame(ratio, 'Custom');
+  showToast(`📐 Custom ${w}×${h} applied`);
+}
+
+// ── Export ──
+function exportVideo(multi) {
+  if (!videoLoaded) { showToast('⚠️ Load a video before exporting.'); return; }
+  const qualityEl = document.querySelector('select');
+  const quality = qualityEl ? qualityEl.value : '1080p Full HD';
+  const label = multi
+    ? 'Exporting for all selected platforms'
+    : `Exporting ${currentPreset.name} (${currentPreset.ratio})`;
+  showProcessing(label + '...', `${currentPreset.size} · ${quality}`, 3000, () => {
+    showToast(`✅ Export complete! ${currentPreset.name} video ready for download.`);
+  });
+}
+
+// ── Processing Overlay ──
+function showProcessing(title, sub, duration, callback) {
+  const ov = document.getElementById('procOverlay');
+  const bar = document.getElementById('procBar');
+  document.getElementById('procText').textContent = title;
+  document.getElementById('procSub').textContent = sub;
+  ov.classList.add('show');
+  bar.style.width = '0%';
+  let progress = 0;
+  const iv = setInterval(() => {
+    progress += (100 - progress) * 0.06;
+    bar.style.width = Math.min(progress, 95) + '%';
+  }, 80);
+  setTimeout(() => {
+    clearInterval(iv);
+    bar.style.width = '100%';
+    setTimeout(() => {
+      ov.classList.remove('show');
+      bar.style.width = '0%';
+      if (callback) callback();
+    }, 300);
+  }, duration);
+}
+
+// ── Toast ──
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:10px 16px;font-size:12px;color:var(--text);z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .3s,transform .3s;transform:translateY(10px);opacity:0;max-width:320px';
+    document.body.appendChild(toast);
+  }
+  clearTimeout(toast._hideT);
+  toast.textContent = msg;
+  toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)';
+  setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
+  toast._hideT = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; }, 3200);
+}
+
+// ── Drag and Drop ──
+const dropZone = document.getElementById('dropZone');
+if (dropZone) {
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('video/')) {
+      showToast('⚠️ Not a video file. Please drop an MP4, MOV, or WebM.');
+      return;
+    }
+    loadVideoIntoEditor(URL.createObjectURL(file), file.name);
+  });
+}
+
+// ── File input bind ──
+// (bound directly in JS below — no duplicate)
+
+// ── Enter key on URL input ──
+document.getElementById('videoUrlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleUrlImport();
+});
+
+// ── Resize: update crop frame ──
+window.addEventListener('resize', () => {
+  if (videoLoaded) updateCropFrame(currentPreset.ratio, currentPreset.name);
+});
+
+/* ═══════════════════════════════════════════
+   AUDIO BARS
+═══════════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('audioBars');
+  if (!c) return;
+  for (let i = 0; i < 30; i++) {
+    const b = document.createElement('div');
+    b.className = 'abar';
+    b.style.cssText = `height:${8+Math.random()*30}px;animation-delay:${Math.random()*1.2}s;animation-duration:${0.7+Math.random()*.7}s;opacity:${.4+Math.random()*.5}`;
+    c.appendChild(b);
+  }
+})();
+
+/* ═══════════════════════════════════════════
+   ANALYTICS CHART
+═══════════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('analyticsChart');
+  if (!c) return;
+  const data = [38000,52000,41000,67000,89000,74000,58000];
+  const max = Math.max(...data);
+  data.forEach(v => {
+    const col = document.createElement('div');
+    col.className = 'chart-col';
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar';
+    bar.style.background = 'linear-gradient(180deg,var(--accent),var(--accent2))';
+    bar.style.height = '0%';
+    bar.title = (v/1000).toFixed(0)+'K views';
+    col.appendChild(bar);
+    c.appendChild(col);
+    setTimeout(() => { bar.style.height = Math.round(v/max*100)+'%'; bar.style.transition = 'height .8s ease'; }, 100);
+  });
+})();
+</script>
+</body>
+</html>
